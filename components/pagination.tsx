@@ -11,7 +11,7 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
       </Button>
 
       <div className="flex items-center text-sm text-zinc-400">
-        Page {currentPage} of {totalPages}
+        {currentPage} / {totalPages}
       </div>
 
       <Button variant="ghost" size="round" disabled={currentPage >= totalPages} asChild>

@@ -1,7 +1,9 @@
+import { Button } from "@/components/ui/button"
 import { Pagination } from "../components/pagination"
 import { getPaginatedPosts } from "../utils/mdUtils"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { Book } from "lucide-react"
 
 export default async function BlogPage({
   searchParams,
@@ -22,8 +24,10 @@ export default async function BlogPage({
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
       <main className="flex pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-semibold py-12 text-center">Blog Posts</h1>
-
+          <div className="mt-10">
+          <Button className="text-sm font-semibold mt-10 text-left" size="sm" variant="outline" ><Book />Blogs</Button>
+          <Button className="text-sm font-semibold mt-10 text-left ml-2" size="sm" variant="outline" ><Book />About</Button>
+          </div>
           {/* Display posts or fallback for empty states */}
           {posts.length > 0 ? (
             <div className="text-center">
@@ -31,7 +35,7 @@ export default async function BlogPage({
                 <div className="text-center">
                   <div
                   key={post.slug}
-                  className="grid grid-cols-[1fr_2fr] gap-4 p-1 rounded-lg transition-colors"
+                  className="grid grid-cols-[1fr_2fr] gap-4 p-4 rounded-lg transition-colors"
                 >
                   <time className="text-zinc-400 text-sm text-right sm:text-base">{post.date}</time>
                   <div>
