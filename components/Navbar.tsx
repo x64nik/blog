@@ -4,11 +4,11 @@ import { FaLinkedin, FaGithub, FaTwitter } from "react-icons/fa" // Using react-
 
 export default function Navbar() {
   return (
-    <header className="fixed top-0 left-0 w-full bg-transparent z-10">
+    <header className="top-0 left-0 w-full bg-transparent z-10">
       <div className="max-w-4xl mx-auto py-12 w-full flex items-center justify-between">
         {/* Site name */}
         <h1 className="text-xl font-bold text-zinc-100 hover:text-zinc-300 transition-colors">
-          <Link href="/">rushikesh.de</Link>
+          <Link href="/">~/.rushikesh.de</Link>
         </h1>
         {/* Social links */}
         <nav>

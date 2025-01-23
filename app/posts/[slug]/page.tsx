@@ -46,7 +46,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   const post = await getPostBySlug(params.slug)
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 py-28 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <Button variant="link" className="mb-4 text-zinc-400 hover:text-zinc-300" asChild>
           <Link href="/">
