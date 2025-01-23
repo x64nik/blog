@@ -39,7 +39,7 @@ export default async function Projects() {
                 className="flex justify-between items-center"
               >
                 <Link
-                  href={`${post.slug}`}
+                  href={`/posts/${post.slug}`}
                   className="text-zinc-100 hover:text-blue-600 font-base underline"
                 >
                   {post.title}
@@ -93,12 +93,6 @@ export default async function Projects() {
             </div>
           ))}
         </div>
-        <div className="mt-12 text-center">
-        <h2 className="text-xl text-white font-semibold mb-4">My Homelab Status</h2>
-        <div className="flex">
-                      
-        </div>
-      </div>
       </div>
     </div>
   );
