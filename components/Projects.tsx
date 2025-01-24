@@ -1,7 +1,5 @@
 import { getPaginatedPosts } from "@/utils/mdUtils";
-import { Badge } from "@/components/ui/badge"
 import Link from "next/link";
-import { Activity } from "lucide-react";
 
 // Sample projects data
 const projects = [

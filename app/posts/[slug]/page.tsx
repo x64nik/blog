@@ -1,4 +1,4 @@
-import { getPostBySlug, getPostSlugs } from "../../../utils/mdUtils";
+import { getPostBySlug } from "../../../utils/mdUtils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";

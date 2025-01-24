@@ -1,9 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Pagination } from "../components/pagination"
-import { getPaginatedPosts } from "../utils/mdUtils"
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { Book } from "lucide-react"
 import About from "@/components/About"
 import Projects from "@/components/Projects"
 
