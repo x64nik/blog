@@ -15,7 +15,7 @@ export default function Navbar() {
           <ul className="flex gap-6">
             <li>
               <Link
-                href="https://github.com/your-username"
+                href="https://github.com/x64nik"
                 target="_blank"
                 className="text-zinc-400 hover:text-zinc-300 transition-colors text-xl"
               >
@@ -24,7 +24,7 @@ export default function Navbar() {
             </li>
             <li>
               <Link
-                href="https://www.linkedin.com/in/your-profile"
+                href="https://www.linkedin.com/in/rushikesh-darunte-758565226/"
                 target="_blank"
                 className="text-zinc-400 hover:text-zinc-300 transition-colors text-xl"
               >
@@ -33,7 +33,7 @@ export default function Navbar() {
             </li>
             <li>
               <Link
-                href="https://twitter.com/your-profile"
+                href="https://x.com/x64Rushi"
                 target="_blank"
                 className="text-zinc-400 hover:text-zinc-300 transition-colors text-xl"
               >

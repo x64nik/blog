@@ -7,8 +7,8 @@ import About from "@/components/About"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "My Markdown Blog",
-  description: "A blog built with Next.js and Markdown",
+  title: "Hi, I'm Rushi!",
+  description: "Devops, SRE, Homelab, self-hosted",
 }
 
 export default function RootLayout({

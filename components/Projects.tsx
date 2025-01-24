@@ -7,13 +7,13 @@ import { Activity } from "lucide-react";
 const projects = [
   {
     title: "ConfigCloud",
-    description: "Description about project and all bla bla",
+    description: "A self-hosted IaaS Platform allowing users to create and manage virtual machines.",
     status: "active",
     slug: "https://configcloud.net",
   },
   {
     title: "Homelab",
-    description: "Another project with a lot of exciting details.",
+    description: "Self-Hosted cloud running in my room!",
     status: "active",
     slug: "boom",
   },
@@ -50,6 +50,18 @@ export default async function Projects() {
           ) : (
             <p className="text-zinc-400">No posts available.</p>
           )}
+        </div>
+        <div className="mt-3">
+              <div
+                className="flex justify-between items-center"
+              >
+                <Link
+                  href={`/posts`}
+                  className="text-zinc-400 hover:text-blue-600 font-base"
+                >
+                  all blogs...
+                </Link>
+              </div>
         </div>
       </div>
 

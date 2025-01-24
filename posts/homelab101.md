@@ -1,6 +1,6 @@
 ---
-title: "Example Markdown Blog Postss"
-date: "January 28, 2024"
+title: "How to start your own homelab with old computers"
+date: "January 01, 2024"
 ---
 
 # Welcome to My Markdown Blog
