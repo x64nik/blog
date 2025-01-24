@@ -87,6 +87,16 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           </ReactMarkdown>
         </article>
       </div>
+      <footer className="text-zinc-200 mt-20 py-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-sm">This blog is opensource, check it out!</p>
+          <div className="mt-2">
+            <Link href="https://github.com/x64nik/blog" className="text-zinc-400 hover:text-zinc-300 text-sm">
+              github.com/x64nik/blog
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
