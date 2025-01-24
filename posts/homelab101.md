@@ -11,7 +11,7 @@ This is an example of a blog post written in Markdown. You can use all the stand
 
 - **Bold** and *italic* text
 - Lists (like this one)
-- [Links](https://example.com)
+- [Links](https://example.com)s
 - Code blocks
 
 ```python
