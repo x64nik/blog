@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
+import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const post = await getPostBySlug(params.slug);
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 const CustomImage = (props: any) => (
-  <img src={props.src || "/placeholder.svg"} alt={props.alt || ""} className="rounded-lg my-8" />
+  <Image src={props.src} alt={props.alt} className="rounded-lg my-8" width={props.width} height={props.height} />
 );
 
 const CustomLink = (props: any) => {
@@ -82,6 +83,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
             }}
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
+            className="text-base"
           >
             {post.content}
           </ReactMarkdown>

@@ -5,6 +5,11 @@ const nextConfig = {
         // your project has ESLint errors.
         ignoreDuringBuilds: true,
       },
+    images: {
+      remotePatterns: [{hostname: "cdn.discordapp.com"}]
+    }
 };
+
+
 
 export default nextConfig;
