@@ -6,7 +6,7 @@ const nextConfig = {
         ignoreDuringBuilds: true,
       },
     images: {
-      remotePatterns: [{hostname: "cdn.discordapp.com"}]
+      remotePatterns: [{hostname: "raw.githubusercontent.com"}]
     }
 };
 

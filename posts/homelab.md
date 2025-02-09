@@ -3,7 +3,7 @@ title: "What I Am Running on My Homelab"
 date: "January 27, 2024"
 ---
 
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333145646646952078/brrr.jpeg?ex=6797d422&is=679682a2&hm=c735fe1ce2b45c23a8dc4697a83f7d0a4f07a1bf2a27a2761e9b19a752ba9d16&" width="480" height="100"/>
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/rack.png" width="480" height="100"/>
 
 This is a new server that i bought 8 months ago, before that i was using HP Compaq SFF PC :) 
 
@@ -41,7 +41,7 @@ I had Dell PERC H710 Mini RAID Card installed in my server which dosnt support I
 
 ### Architecture
 
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333532382363648050/homelab-diagram.png?ex=67993c4f&is=6797eacf&hm=dafc8c0c583198e81e525b6f6e460b1192c300ca1ee0bfb6ac97cd5ede803e2f&" width="1280" height="720"/>
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/homelab-diagram.png" width="1280" height="720"/>
 
 
 I am using Proxmox 8.2 Type-1 Hyervisor it is free and easy to use, i have been using proxmox from last 2 years and my experience is pritty good.
@@ -53,14 +53,12 @@ I am using Proxmox 8.2 Type-1 Hyervisor it is free and easy to use, i have been 
 **Cloudflare Tunnels**<br>
 I am using two cloudflare tunnels on two different networks, first one is in my main network which is my primary home lan and second one is the pfsense vlan where external users virtual machines are deployed, this vms are isolated and they can only access internet apart from that inter vlan communication is disable, before pfsense i was using Proxmox SDN but there were some limitation with setup so i setup pfsense but with proxmox SDN, yup i am using both pfsense as virtual firewall and SDN as physical ahh its not physical but its on another layer which is on top of pfsense.
 
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333536913184784414/image.png?ex=67994088&is=6797ef08&hm=8412f6873fc7303d10f463b9f5840165264694beb3fa57c809a6f93bcdd4b65a&" width="1280" height="720"/>
 
 I know the diagram looks soo messy and confusing but trust me its not that much complicated. So basically there are two networks in my homelab first one is the host network (192.168.0.0/24) this is my main home lan and second one is the one which is managed by the pfsense.
 
 **Pfsense Firewall**<br>
 It is a software based firewall installed on top of a vm and that vm has 3 network interface cards (virtual NICs) first one is the so called WAN interface which is directly connected to our main lan (192.168.0.0/24) which is comming from router which mean this interface has internet connection second one is the LAN intereface this is the local virtual lan network of pfsense and the third interface is splitted into 2 interfaces and each interface has a tag, so this third interface is our VLAN where our private VMS will be running.
 
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333540831218634753/image.png?ex=6799442e&is=6797f2ae&hm=0c8d894cef73ebec6e800ed8d78c914227868836aa291212a75731e6fbae4a30&" width="640" height="720"/>
 
 **Wildcard DNS Record**<br>
 There are lot of services running in my homelab and it becomes a repatative task to add public hostname rules on cloudflare tunnels page to avoid that i am using wildcard dns entry to cloudflare tunnel, there is  a traefik lb running in k3s cluster when ever i had to expose any service i just had to create a ingress rule with the public hostname and the service becomes available on that domain ;)
@@ -84,11 +82,8 @@ This is a backup server which i am using for proxmox vms but it also has 2 pools
 ### Monitoring 
 I have three docker hosts virtual machines where i am running dozzle and dozzle agent its a opensource and lighweight logging tool, I am running the dozzle master on one of my vm and rest of the docker hosts are connect via agent url, dozzle supports multiple remote host connectivity so that we can check logs of all containers running on different hosts on same page.   
 
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333548267706908742/image.png?ex=67994b1b&is=6797f99b&hm=fab60c48df737aaaed7aa5a0fdb4ef53410071f988047a14285867f7c3b5d039&" width="1280" height="720"/>
 
 I am also using grafana with promxox pve exporter with influxdb and prometheus, its a default dashboard but ill be modifying it later.
-
-<img alt="1" src="https://cdn.discordapp.com/attachments/1332385525105164341/1333549964491624563/image.png?ex=67994caf&is=6797fb2f&hm=e1ad6b44efb671d7843e8e738221c07e0995fc6a4682f7383ff9a4170a6e749b&" width="1280" height="720"/>
 
 ElasticSeacrch, Fluentbit and Kibana stack is running on k3s cluster, it is  a bit incomplete though but along with that prometheus operator, node exporter, etc is running i curreently have two grafana instances because one is running on docker host and another is on k3s but i am going to keep only one in future.
 
