@@ -79,13 +79,17 @@ This is a backup server which i am using for proxmox vms but it also has 2 pools
 
 ### Monitoring 
 
-<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/dash.png" width="1280" height="720"/>
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/dozzle.png" width="1280" height="720"/>
 
 
 I have three docker hosts virtual machines where i am running dozzle and dozzle agent its a opensource and lighweight logging tool, I am running the dozzle master on one of my vm and rest of the docker hosts are connect via agent url, dozzle supports multiple remote host connectivity so that we can check logs of all containers running on different hosts on same page.   
 
 
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/dash.png" width="1280" height="720"/>
+
 I am also using grafana with promxox pve exporter with influxdb and prometheus, its a default dashboard but ill be modifying it later.
 
 ElasticSeacrch, Fluentbit and Kibana stack is running on k3s cluster, it is  a bit incomplete though but along with that prometheus operator, node exporter, etc is running i curreently have two grafana instances because one is running on docker host and another is on k3s but i am going to keep only one in future.
+
+
 
