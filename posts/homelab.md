@@ -54,8 +54,6 @@ I am using Proxmox 8.2 Type-1 Hyervisor it is free and easy to use, i have been 
 I am using two cloudflare tunnels on two different networks, first one is in my main network which is my primary home lan and second one is the pfsense vlan where external users virtual machines are deployed, this vms are isolated and they can only access internet apart from that inter vlan communication is disable, before pfsense i was using Proxmox SDN but there were some limitation with setup so i setup pfsense but with proxmox SDN, yup i am using both pfsense as virtual firewall and SDN as physical ahh its not physical but its on another layer which is on top of pfsense.
 
 
-I know the diagram looks soo messy and confusing but trust me its not that much complicated. So basically there are two networks in my homelab first one is the host network (192.168.0.0/24) this is my main home lan and second one is the one which is managed by the pfsense.
-
 **Pfsense Firewall**<br>
 It is a software based firewall installed on top of a vm and that vm has 3 network interface cards (virtual NICs) first one is the so called WAN interface which is directly connected to our main lan (192.168.0.0/24) which is comming from router which mean this interface has internet connection second one is the LAN intereface this is the local virtual lan network of pfsense and the third interface is splitted into 2 interfaces and each interface has a tag, so this third interface is our VLAN where our private VMS will be running.
 
@@ -80,6 +78,10 @@ Kubernetes does not offer an implementation of network load balancers (Services 
 This is a backup server which i am using for proxmox vms but it also has 2 pools (SMB and NFS) which is used as k3s storage class, before this i was using longhorn but it was too heavy and my io delay was slowing my server so i went with this simple and easy solution.
 
 ### Monitoring 
+
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/dash.png" width="1280" height="720"/>
+
+
 I have three docker hosts virtual machines where i am running dozzle and dozzle agent its a opensource and lighweight logging tool, I am running the dozzle master on one of my vm and rest of the docker hosts are connect via agent url, dozzle supports multiple remote host connectivity so that we can check logs of all containers running on different hosts on same page.   
 
 
