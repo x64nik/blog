@@ -1,7 +1,8 @@
 ---
 title: "What I Am Running on My Homelab"
-date: "February 10, 2024"
+date: "January 27, 2024"
 ---
+**Updated on 12 Feb 2024**
 
 <img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/rack.png" width="480" height="100"/>
 
