@@ -55,7 +55,7 @@ export const getServices = cache(async (): Promise<ServicesResponse> => {
     ]
     ,
       timestamp: Date.now(),
-      errorMessage: "It looks like my server is currently offline. This might be because I’m in the office, there’s a power outage, or an internet issue. I typically keep the server offline when I'm working in the office to save on electricity costs :(",
+      errorMessage: "It looks like my server is currently offline, which might be due to me being in the office, a power outage, or an internet issue. I usually keep the server offline while I’m at the office to save on electricity costs, and I also power it down during the nighttime.",
     }
   }
 })
