@@ -4,11 +4,7 @@ date: "January 27, 2024"
 ---
 **Updated on 12 Feb 2024**
 
-<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/rack.png" width="480" height="100"/>
-
-This is a new server that i bought 8 months ago, before that i was using HP Compaq SFF PC :) 
-
-<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/old-server.png" width="480" height="100"/>
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/homelab-diagram.png" width="1280" height="720"/>
 
 ## Hardware
 
@@ -24,11 +20,12 @@ This is a new server that i bought 8 months ago, before that i was using HP Comp
 - TP-Link Ac1200 Mbps ArcherA6 Router <br/>
 - TP-Link LS105G Gigabit Switch <br/>
 
-I had Dell PERC H710 Mini RAID Card installed in my server which dosnt support IT mode, so i had to flash it into IT mode using custom firmware. 
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/rack.png" width="480" height="100"/>
 
-## Architecture
+This is a new server that I bought 8 months ago, before that I was using HP Compaq SFF PC :) <br>
+I have a Dell PERC H710 Mini RAID Card installed in my server, which doesn’t support IT mode. To resolve this, I had to flash it into IT mode using custom firmware.
 
-<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/homelab-diagram.png" width="1280" height="720"/>
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/old-server.png" width="480" height="100"/>
 
 ## Hypervisor - Proxmox 8.2
 
