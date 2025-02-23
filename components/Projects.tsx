@@ -13,7 +13,7 @@ const projects = [
     title: "Homelab",
     description: "Self-Hosted cloud running in my room!",
     status: "active",
-    slug: "boom",
+    slug: "homelab",
   },
 ];
 
