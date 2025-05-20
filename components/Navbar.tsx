@@ -8,7 +8,7 @@ export default function Navbar() {
       <div className="max-w-4xl mx-auto py-12 w-full flex items-center justify-between">
         {/* Site name */}
         <h1 className="text-xl font-bold text-zinc-100 hover:text-zinc-300 transition-colors">
-          <Link href="/">~/.rushikesh.de</Link>
+          <Link href="/">Rushi Darunte</Link>
         </h1>
         {/* Social links */}
         <nav>

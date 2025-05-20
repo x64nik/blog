@@ -52,8 +52,7 @@ export const getServices = cache(async (): Promise<ServicesResponse> => {
         { "title": "K3S Server", "status": "issue", "info": "Lightweight Kubernetes for production workloads in IoT and edge environments." },
         { "title": "Custom Runners", "status": "issue", "info": "Self-hosted runners for CI/CD workflows in GitHub Actions." },
         { "title": "TrueNAS", "status": "issue", "info": "FreeNAS-based storage server for managing and sharing files." }
-    ]
-    ,
+    ],
       timestamp: Date.now(),
       errorMessage: "It looks like my server is currently offline, which might be due to me being in the office, a power outage, or an internet issue. I usually keep the server offline while I’m at the office to save on electricity costs, and I also power it down during the nighttime.",
     }
