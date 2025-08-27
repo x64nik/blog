@@ -8,7 +8,10 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	extend: {
+    extend: {
+      fontFamily: {
+        ubuntu: ['Ubuntu', 'sans-serif'],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

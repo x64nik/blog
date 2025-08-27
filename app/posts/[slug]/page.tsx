@@ -49,7 +49,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Post not found</h1>
           <Button variant="link" className="text-zinc-100 hover:text-zinc-300" asChild>
@@ -64,7 +64,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <Button variant="link" className="mb-4 text-zinc-400 hover:text-zinc-300" asChild>
           <Link href="/posts">

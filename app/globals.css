@@ -2,8 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-lato: 'Lato', sans-serif;
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Typography scale */
+h1 {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h3, h4 {
+  font-weight: 700;
+}
+
+p {
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Add a lighter weight for subtle text */
+.text-subtle {
+  font-weight: 300;
 }
 
 @layer utilities {
@@ -14,18 +46,18 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --background: 0 0% 9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 63%;
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;

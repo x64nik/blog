@@ -1,10 +1,14 @@
 import Navbar from "@/components/Navbar"
 import "./globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Lato } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
 
-const inter = Inter({ subsets: ["latin"] })
+const lato = Lato({ 
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "700", "900"],
+  variable: '--font-lato'
+})
 
 export const metadata: Metadata = {
   title: "ACK, Rushi here",
@@ -18,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-zinc-950 text-zinc-100 antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${lato.variable} font-sans antialiased`}>
         <Navbar />
         {children}
         <Analytics />

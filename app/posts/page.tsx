@@ -24,9 +24,9 @@ export default async function BlogPage({ searchParams }: { searchParams: { page?
   }
 
   return (
-    <div className="bg-zinc-950 text-zinc-100 flex flex-col">
+    <div className="flex flex-col">
       <div className="max-w-4xl mx-auto w-full flex items-center justify-between">
-        <Button variant="link" className="text-zinc-400 hover:text-zinc-300" asChild>
+        <Button variant="link" className="text-muted-foreground hover:text-foreground" asChild>
           <Link href="/">
             <ChevronLeft className="w-4 h-4" />
             Homepage
