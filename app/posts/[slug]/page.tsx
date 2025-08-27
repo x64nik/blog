@@ -75,7 +75,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
         <article className="prose prose-invert prose-lg max-w-none">
           <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-          <time className="text-zinc-400 block mb-8">{post.date}</time>
+          <div className="space-y-1 mb-8">
+            <time className="text-muted-foreground block">{post.date}</time>
+            {post.updatedDate && (
+              <time className="text-muted-foreground text-sm block">
+                Last updated: {post.updatedDate}
+              </time>
+            )}
+          </div>
           <ReactMarkdown
             components={{
               img: CustomImage,

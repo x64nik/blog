@@ -22,6 +22,7 @@ export async function getPostBySlug(slug: string): Promise<Post> {
     slug: realSlug,
     title: data.title,
     date: data.date,
+    updatedDate: data.updatedDate,
     content: processedContent,
   }
 }

@@ -4,6 +4,7 @@ import { getPaginatedPosts } from "../../utils/mdUtils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/dateUtils";
 
 export async function generateMetadata() {
   return {
@@ -43,11 +44,20 @@ export default async function BlogPage({ searchParams }: { searchParams: { page?
                   key={post.slug}
                   className="grid grid-cols-[1fr_2fr] gap-4 p-1 rounded-lg transition-colors"
                 >
-                  <time className="text-zinc-400 text-right">{post.date}</time>
+                  <div className="flex flex-col items-end justify-start gap-1">
+                    <time className="text-muted-foreground text-sm" dateTime={post.date}>
+                      {formatDate(post.date)}
+                    </time>
+                    {post.lastModified && post.lastModified !== post.date && (
+                      <time className="text-muted-foreground text-xs" dateTime={post.lastModified}>
+                        Updated: {formatDate(post.lastModified)}
+                      </time>
+                    )}
+                  </div>
                   <div>
                     <Link
                       href={`/posts/${post.slug}`}
-                      className="text-zinc-100 hover:text-zinc-300 transition-colors text-left block"
+                      className="text-foreground hover:text-muted-foreground transition-colors text-left block"
                     >
                       {post.title}
                     </Link>
