@@ -29,7 +29,8 @@
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "yet-another-react-lightbox": "^3.25.0"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import Image from "next/image";
+import ZoomableImage from "@/components/ZoomableImage";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const post = await getPostBySlug(params.slug);
@@ -31,7 +31,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 const CustomImage = (props: any) => (
-  <Image src={props.src} alt={props.alt} className="rounded-lg my-8" width={props.width} height={props.height} />
+  <ZoomableImage
+    src={props.src}
+    alt={props.alt || ''}
+    width={props.width}
+    height={props.height}
+  />
 );
 
 const CustomLink = (props: any) => {
