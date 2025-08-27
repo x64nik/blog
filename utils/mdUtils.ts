@@ -13,10 +13,17 @@ export async function getPostBySlug(slug: string): Promise<Post> {
   const realSlug = slug.replace(/\.md$/, "")
   const fullPath = path.join(postsDirectory, `${realSlug}.md`)
   const fileContents = await fs.readFile(fullPath, "utf8")
-  const { data, content } = matter(fileContents)
+  const { data, content: rawContent } = matter(fileContents)
 
-  // Process image paths correctly
-  const processedContent = processImagePaths(content)
+  // Process image paths and ensure content is valid
+  let processedContent = rawContent
+  try {
+    processedContent = processImagePaths(rawContent)
+  } catch (error) {
+    console.error(`Error processing content for ${slug}:`, error)
+    // Return raw content if processing fails
+    processedContent = rawContent
+  }
 
   return {
     slug: realSlug,
@@ -29,10 +36,21 @@ export async function getPostBySlug(slug: string): Promise<Post> {
 
 export async function getAllPosts(): Promise<PostMetadata[]> {
   const slugs = await getPostSlugs()
-  const posts = await Promise.all(slugs.map(async (slug) => await getPostBySlug(slug)))
-  return posts
-    .sort((post1, post2) => (post1.date > post2.date ? -1 : 1))
-    .map(({ slug, title, date }) => ({ slug, title, date }))
+  const files = await Promise.all(
+    slugs.filter(slug => slug.endsWith('.md'))
+      .map(async (slug) => {
+        const realSlug = slug.replace(/\.md$/, "")
+        const fullPath = path.join(postsDirectory, slug)
+        const fileContents = await fs.readFile(fullPath, "utf8")
+        const { data } = matter(fileContents)
+        return {
+          slug: realSlug,
+          title: data.title,
+          date: data.date
+        }
+      })
+  )
+  return files.sort((a, b) => (a.date > b.date ? -1 : 1))
 }
 
 export const POSTS_PER_PAGE = 10
@@ -48,7 +66,7 @@ export async function getPaginatedPosts(page: number) {
 
   return {
     posts: allPosts.slice(start, end),
-    currentPage, // Return clamped page number
+    currentPage,
     totalPages,
   };
 }

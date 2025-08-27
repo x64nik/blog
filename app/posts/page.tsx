@@ -44,15 +44,10 @@ export default async function BlogPage({ searchParams }: { searchParams: { page?
                   key={post.slug}
                   className="grid grid-cols-[1fr_2fr] gap-4 p-1 rounded-lg transition-colors"
                 >
-                  <div className="flex flex-col items-end justify-start gap-1">
+                  <div className="flex flex-col items-end justify-start">
                     <time className="text-muted-foreground text-sm" dateTime={post.date}>
                       {formatDate(post.date)}
                     </time>
-                    {post.lastModified && post.lastModified !== post.date && (
-                      <time className="text-muted-foreground text-xs" dateTime={post.lastModified}>
-                        Updated: {formatDate(post.lastModified)}
-                      </time>
-                    )}
                   </div>
                   <div>
                     <Link

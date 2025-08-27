@@ -9,7 +9,6 @@ export interface Post {
   export interface PostMetadata {
     title: string
     date: string
-    updatedDate?: string
     slug: string
   }
   

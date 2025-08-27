@@ -6,6 +6,70 @@
   --font-lato: 'Lato', sans-serif;
 }
 
+/* PrismJS theme customization */
+pre[class*="language-"] {
+  @apply my-4 p-4 rounded-lg overflow-x-auto text-sm;
+  background: hsl(var(--muted));
+}
+
+:not(pre) > code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  @apply text-muted-foreground;
+}
+
+.token.function,
+.token.class-name,
+.token.maybe-class-name {
+  @apply text-yellow-500;
+}
+
+.token.punctuation {
+  @apply text-muted-foreground;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  @apply text-pink-500;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  @apply text-green-500;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  @apply text-yellow-500;
+}
+
+.token.keyword {
+  @apply text-purple-500;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  @apply text-purple-500;
+}
+
 body {
   font-family: var(--font-lato);
   -webkit-font-smoothing: antialiased;

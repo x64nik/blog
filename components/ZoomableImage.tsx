@@ -15,20 +15,26 @@ interface ZoomableImageProps {
 
 export default function ZoomableImage({ src, alt, width, height }: ZoomableImageProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const defaultWidth = 800
+  const defaultHeight = 450
+  const aspectRatio = height && width ? height / width : 9/16
 
   return (
     <>
       <div 
         onClick={() => setIsOpen(true)} 
-        className="cursor-zoom-in transition-transform hover:scale-[1.01] duration-200"
+        className="cursor-zoom-in transition-transform hover:scale-[1.01] duration-200 max-w-3xl -my-1"
       >
-        <Image
-          src={src}
-          alt={alt}
-          width={width || 1280}
-          height={height || 720}
-          className="rounded-lg my-8"
-        />
+        <div className="relative">
+          <Image
+            src={src}
+            alt={alt}
+            width={width || defaultWidth}
+            height={height || defaultHeight}
+            className="rounded-lg w-full h-auto object-contain"
+            style={{ aspectRatio: `${width || defaultWidth}/${height || defaultHeight}` }}
+          />
+        </div>
       </div>
 
       <Lightbox

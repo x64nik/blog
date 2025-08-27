@@ -39,6 +39,12 @@ For installing Home Assistant using a script, run this:
 bash -c "$(wget -qLO - https://raw.githubusercontent.com/community-scripts/ProxmoxVE/a4a1821822f0f00fde56bc9b1ebe7204f5e01c08/install/homeassistant-core-install.sh)"
 ```
 
+okok test
+
+```python
+print("ok")
+```
+
 ### Spinning Up Your First VM
 
 Don't use ISO files to install OSes—cloud providers don’t use ISO files. They use qcow2 images with cloud-init to automate the initial setup and configuration of virtual machines (VMs) when they are first launched. To create a VM from a qcow2 image, I created a bash script that turns the qcow2 image into a VM template. Then, you can full clone the VM and configure cloud-init settings such as username, password, IP, SSH key, etc., and your VM is ready to boot.
