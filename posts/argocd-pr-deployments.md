@@ -16,7 +16,7 @@ In this post, we'll walk through how we set up **preview deployments using ArgoC
 The following diagram illustrates how our GitOps-based preview environment workflow is structured with **GitHub Actions**, **ArgoCD**, and **AWS EKS**.
 
 #### ArgoCD Preview Deployment Architecture
-<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-pr-deployment-diagram.png" width="1280" height="720"/>
+<img alt="ArgoCD Preview Deployment Architecture" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-pr-deployment-diagram.png" width="1280" height="720"/>
 
 Each pull request triggers a dedicated CI/CD pipeline in **GitHub Actions**, which performs a series of automated steps:
 
@@ -125,6 +125,8 @@ spec:
 
 ## Create Github Actions Workflows
 
+<img alt="GitHub Actions preview deployment run" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
+
 ### Detect the deployment env
 
 ```yaml
@@ -223,8 +225,9 @@ You might be thinking, "Why are we doing this? Can't we just monitor PRs only?" 
 
 Once the PR is labeled as preview-ready, our ArgoCD will consider that PR and the ApplicationSet will do its magic—creating an ArgoCD app with the Helm chart deployment.
 
-As we can see, our application is up and running in an isolated namespace.
+<img alt="Argocd PR Deployed" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
 
+As we can see, our application is up and running in an isolated namespace.
 
 ### Updating Existing PR
 
@@ -265,6 +268,9 @@ argocd-sync:
 ```
 
 ## Adding comments in PR
+
+<img alt="Adding comments in PR" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
+
 
 Once the PR is successfully deployed to the preview environment, we wanted developers to receive instant feedback directly in the PR itself — without needing to open ArgoCD. To achieve this, we configured **ArgoCD Notifications** to post a detailed deployment comment in the corresponding GitHub PR whenever the application reaches a healthy state.
 
