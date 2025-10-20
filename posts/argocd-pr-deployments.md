@@ -7,46 +7,47 @@ date: "Oct 11, 2024"
 
 As our applications grew and our development teams expanded, we needed a reliable way to preview code changes before merging them into production. Traditional preview deployments worked well initially, but we wanted a solution that aligned with our GitOps workflow and could scale seamlessly within our AWS EKS infrastructure.
 
-That’s when we implemented **GitOps-based preview environments with ArgoCD**. This setup allows each pull request to automatically spin up its own isolated environment on Kubernetes, complete with an ingress domain that includes the PR number as a subdomain. Whenever a PR receives new commits, the corresponding environment automatically updates with the latest image tag. Once the PR is closed or merged, the environment is automatically cleaned up — saving costs and reducing manual overhead.
+That's when we implemented **GitOps-based preview environments with ArgoCD**. This setup allows each pull request to automatically spin up its own isolated environment on Kubernetes, complete with an ingress domain that includes the PR number as a subdomain. Whenever a PR receives new commits, the corresponding environment automatically updates with the latest image tag. Once the PR is closed or merged, the environment is automatically cleaned up—saving costs and reducing manual overhead.
 
-In this post, we’ll walk through how we set up **preview deployments using ArgoCD on EKS**, the challenges we faced, and how this approach improved our deployment speed, consistency, and developer experience.
+In this post, we'll walk through how we set up **preview deployments using ArgoCD on EKS**, the challenges we faced, and how this approach improved our deployment speed, consistency, and developer experience.
 
 ## How it Works
 
 The following diagram illustrates how our GitOps-based preview environment workflow is structured with **GitHub Actions**, **ArgoCD**, and **AWS EKS**.
 
-![ArgoCD Preview Deployment Architecture](./diagram.png)
+#### ArgoCD Preview Deployment Architecture
+<img alt="1" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-pr-deployment-diagram.png" width="1280" height="720"/>
 
 Each pull request triggers a dedicated CI/CD pipeline in **GitHub Actions**, which performs a series of automated steps:
 
-- **Environment setup:** Detect the deployment (by checking branch type), defines environment variables such as the PR number and branch name.
-- **Static checks:** Runs Dockerfile linting and vulnerability scanning using **Trivy**.  
-- **Image build and push:** Builds the Docker image, tags it with the env name and commit SHA, and pushes it to **Amazon ECR**.  
-- **Helm chart update:** Updates the `values.yaml` file with the new image tag (only for prod deployments). 
-- **Label PR:** Labels the PR as “preview-ready”
-- **ArgoCD sync:** Manually calling argocd sync api to deploy the updated Helm chart.
+- **Environment setup:** Detects the deployment environment by checking the branch type and defines environment variables such as the PR number and branch name
+- **Static checks:** Runs Dockerfile linting and vulnerability scanning using **Trivy**  
+- **Image build and push:** Builds the Docker image, tags it with the environment name and commit SHA, and pushes it to **Amazon ECR**  
+- **Helm chart update:** Updates the `values.yaml` file with the new image tag (only for production deployments) 
+- **Label PR:** Labels the PR as "preview-ready"
+- **ArgoCD sync:** Manually calls the ArgoCD sync API to deploy the updated Helm chart
 
 ArgoCD continuously monitors both the **application repository** and the **Helm chart repository** for changes. When a new or updated PR is detected, it automatically syncs the configuration and deploys the corresponding environment into a dedicated **namespace** within the **EKS cluster**.  
 
-Each namespace is named after the branch or PR number (for example, `branch-01` & `appname-pr-123`), ensuring isolation between environments. Once a PR is closed or merged, the corresponding namespace is deleted.
+Each namespace is named after the branch or PR number (for example, `branch-01` and `appname-pr-123`), ensuring isolation between environments. Once a PR is closed or merged, the corresponding namespace is deleted.
 
 
-`Assuming you already have a running Kubernetes cluster with ArgoCD installed and your application repository includes a Helm chart.`
+> **Prerequisites:** This guide assumes you already have a running Kubernetes cluster with ArgoCD installed and your application repository includes a Helm chart.
 
-## Create Argocd ApplicationSet
+## Create ArgoCD ApplicationSet
 
-The ApplicationSet is at the core of how preview environments are dynamically created and destroyed. It allows ArgoCD to automatically generate ArgoCD Application resources based on a defined generator — in our case, **pull requests** from GitHub. 
+The ApplicationSet is at the core of how preview environments are dynamically created and destroyed. It allows ArgoCD to automatically generate ArgoCD Application resources based on a defined generator—in our case, **pull requests** from GitHub. 
 
 Whenever a new pull request is opened, the ApplicationSet controller detects it through the **PR generator** and automatically creates a new ArgoCD Application pointing to the corresponding branch or commit. Each application deploys into its own **namespace**, typically named after the PR number or branch name.  
 
-But first we need to create a github token secret, which will be used by argocd to call GitHub API to detect opened pull requests.
+First, we need to create a GitHub token secret, which will be used by ArgoCD to call the GitHub API to detect opened pull requests.
 
 ```bash
 k create secret generic github-token \
   --from-literal=token=<GITHUB_PERSON_ACCESS_TOKEN>
 ```
 
-We are providing the Helm values as a string in the application set itself because this is a nextjs frontend application and all we need is to override name, fullname, imagetag and ingress host, very basic settings.
+We're providing the Helm values as a string in the ApplicationSet itself because this is a Next.js frontend application and we only need to override basic settings like name, fullname, image tag, and ingress host.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -66,7 +67,7 @@ spec:
           secretName: github-token
           key: token
         labels:
-        - preview-ready # Triggers only when PR is labled as preview-ready
+        - preview-ready # Triggers only when PR is labeled as preview-ready
       requeueAfterSeconds: 60
   template:
     metadata:
@@ -145,19 +146,20 @@ set-variables:
         fi
         echo "deploy-env=$DEPLOY_ENV" >> $GITHUB_OUTPUT
 ```
-Here we are checking the commit lies on which branch if its main branch then we will consider it as prod deployment (helm update directly no pr env), else we will consider it as a preview deployment. For multiple envs like pr, dev, staging, qa and prod we can also refine the existing job to check the specific format of branch.
+Here we're checking which branch the commit lies on. If it's the main branch, we consider it a production deployment (Helm update directly, no PR environment). Otherwise, we consider it a preview deployment. For multiple environments like PR, dev, staging, QA, and prod, we can also refine the existing job to check for specific branch formats.
 
-### Docker build, trivy scan and push
+### Docker build, Trivy scan and push
+
+This job handles the complete container lifecycle:
 
 ```yaml
 build-scan-push:
   environment: ${{ inputs.deploy-env }}
   outputs:
     image-tag: ${{ steps.meta.outputs.tags }}
-    version: ${{ steps.meta.outputs.version }}
   runs-on: ${{ inputs.runs-on }}
   steps:
-    - name:  Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v3
     
     - name: Get short SHA
@@ -168,66 +170,26 @@ build-scan-push:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: |
-          name=${{ inputs.docker-registry }}/${{ inputs.docker-repository }}/${{ inputs.docker-image-name }}
-        tags: |
-          type=raw,value=${{ inputs.deploy-env }}-${{ steps.short_sha.outputs.sha_short }}
-          type=semver,pattern={{raw}}
+        images: ${{ inputs.docker-registry }}/${{ inputs.docker-repository }}/${{ inputs.docker-image-name }}
+        tags: ${{ inputs.deploy-env }}-${{ steps.short_sha.outputs.sha_short }}
 
     - name: Configure AWS credentials
       if: inputs.docker-registry-type == 'ecr'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ inputs.role-to-assume }} 
-        role-session-name: ${{ inputs.role-session-name }}
         aws-region: ${{ inputs.aws-region }}
+        
     - name: Login to Amazon ECR
       if: inputs.docker-registry-type == 'ecr'
-      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    
 
-    # add normal exec command to build so that we can pass .env
-    - name: Build image
-      id: docker-build
-      working-directory: ${{ inputs.working-directory }}
-      env:
-        ECR_REGISTRY: ${{ inputs.docker-registry }}
-        ECR_REPOSITORY: ${{ inputs.docker-repository }}
-        DOCKERFILE_PATH: ${{ github.workspace }}/${{ inputs.dockerfile-path }}
-        IMAGE_TAGS:  ${{ steps.meta.outputs.tags }}
-        IMAGE_NAME: ${{ inputs.docker-image-name }}
+    - name: Build and push image
       run: |
-        # Split tags manually (space-separated)
-        IFS=' ' read -r -a tags <<< "$IMAGE_TAGS"
-        
-        echo "Building image with first tag: ${tags[0]}"
-        if [[ $build_args ]]; then
-          echo "Building with build_args"
-          docker build -t "${tags[0]}" -f "$DOCKERFILE_PATH" $build_args .
-        else
-          echo "Building without build_args"
-          docker build -t "${tags[0]}" -f "$DOCKERFILE_PATH" .
-        fi
-
-        # Tagging additional tags
-        for tag in "${tags[@]:1}"; do
-          echo "Tagging additional tag: $tag"
-          docker tag "${tags[0]}" "$tag"
-        done
-
-        # echo "Creating image Tarball"
-        # docker save -o "/tmp/$IMAGE_NAME.tar" "${tags[0]}"
-
-    - name: Push Images to Registry
-      run: |
-        IFS=' ' read -r -a tags <<< "${{ steps.meta.outputs.tags }}"
-        for tag in "${tags[@]}"; do
-          echo "Pushing tag: $tag"
-          docker push "$tag"
-        done
+        docker build -t ${{ steps.meta.outputs.tags }} .
+        docker push ${{ steps.meta.outputs.tags }}
             
-    - name: Upload trivy image sbom as a Github artifact
+    - name: Upload Trivy SBOM
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.project }}-image-sbom
@@ -235,11 +197,11 @@ build-scan-push:
         retention-days: 1
 ```
 
-In this job we are doing lot of things, just take sometime and gothrough it. Basically we are extracting the short sha hash from the commit hash, loging to aws ecr, building the docker imag with docker meta acion and publishing it to our aws ecr repo and then tipycal trivy scan to scan the image generate sbom and create a github artifact.
+This job extracts the short SHA hash from the commit, logs into AWS ECR, builds the Docker image, publishes it to our ECR repository, and runs a Trivy scan to generate an SBOM and create a GitHub artifact.
 
-### Label the PR as preivew-ready
+### Label the PR as preview-ready
 
-This is very important step. Our argocd is monitoring the repo PRs but its not taking any action until and unless there is a `preview-ready` label on that PR.
+This is a very important step. Our ArgoCD is monitoring the repository PRs, but it's not taking any action until there is a `preview-ready` label on that PR.
 ```yaml
 pr-ready:
   needs: build-scan-push
@@ -255,19 +217,18 @@ pr-ready:
       run: |
         gh pr edit "$PR_NUMBER" --add-label "preview-ready"
 ```
-Now you might be thinking `Why we are doing this cant we just monitor PRs only?` -- Because in our case it takes ~5-8 mins to build the docker image, so if we trigger argo on the basis of pr event then only argcd will deploy the application but it will fail (ImagePullerror), because docker build is not completed yet and there is no image on ecr for that commit. To avoid issue we will label our PR only after docker build and push job is successfull.
+You might be thinking, "Why are we doing this? Can't we just monitor PRs only?" The reason is that in our case, it takes ~5-8 minutes to build the Docker image. If we trigger ArgoCD based on the PR event, ArgoCD will deploy the application but it will fail with an ImagePullError because the Docker build isn't completed yet and there's no image on ECR for that commit. To avoid this issue, we label our PR only after the Docker build and push job is successful.
 
-### Argocd Trigger
+### ArgoCD Trigger
 
-Once the pr is labeled as preview-ready, our argocd will consier that PR and application set will do its magic, i.e creating a argo app with the helm chart deployment.
+Once the PR is labeled as preview-ready, our ArgoCD will consider that PR and the ApplicationSet will do its magic—creating an ArgoCD app with the Helm chart deployment.
 
-
-As we can see our application is up and running, in a isolated namespace.
+As we can see, our application is up and running in an isolated namespace.
 
 
 ### Updating Existing PR
 
-Now lets say if a developer wants to push hotfixes to existing PR and we want to deploy them into the existing env that we created for that PR. Its very streight forward, our argo app is already monitoring the PR so if we push any commit to that pr argo will detect it and will try to sync it but here it will not be able to pull the updated docker image (our previous imagepullbackoff error) because its still in the build process and thats fine in this case because pr is already labled as preview-ready so once the docker image is build,  we will forcefully sync the argocd app and this time we are 100% sure that argo will be able to pull the image because our docker build stage was completed.
+Now let's say a developer wants to push hotfixes to an existing PR and we want to deploy them into the existing environment that we created for that PR. It's very straightforward—our ArgoCD app is already monitoring the PR, so if we push any commit to that PR, ArgoCD will detect it and try to sync it. However, it won't be able to pull the updated Docker image (our previous ImagePullBackOff error) because it's still in the build process. That's fine in this case because the PR is already labeled as preview-ready, so once the Docker image is built, we will forcefully sync the ArgoCD app. This time we're 100% sure that ArgoCD will be able to pull the image because our Docker build stage was completed.
 
 ```yaml
 argocd-sync:
@@ -285,15 +246,10 @@ argocd-sync:
       sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
       rm argocd-linux-amd64
   
-  - name: Set ArgoCD app name for preview deployment
+  - name: Set ArgoCD app name
     run: |
-      if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-        APP_NAME="${{ inputs.argocd-app-name }}-${{ github.event.number }}"
-      else
-        APP_NAME="${{ secrets.ARGOCD_APP_NAME }}"
-      fi
+      APP_NAME="${{ inputs.argocd-app-name }}-${{ github.event.number }}"
       echo "ARGOCD_APP_NAME=$APP_NAME" >> $GITHUB_ENV
-      echo "Using ArgoCD app name: $APP_NAME"
       
   - name: Login to ArgoCD
     run: |
@@ -305,18 +261,7 @@ argocd-sync:
   - name: Sync ArgoCD Application
     run: |
       argocd app sync $ARGOCD_APP_NAME --force
-        
-  - name: Wait for sync completion
-    run: |
       argocd app wait $ARGOCD_APP_NAME --timeout 600 --health
-
-  - name: Get application status
-    run: |
-      argocd app get $ARGOCD_APP_NAME
-
-  - name: Logout from ArgoCD
-    if: always()
-    run: argocd logout ${{ secrets.ARGOCD_SERVER }}
 ```
 
 ## Adding comments in PR
@@ -353,7 +298,7 @@ data:
           }
 ```
 
-Here we are using github personal access token that we generated in the previously to call github api.
+Here we're using the GitHub personal access token that we generated previously to call the GitHub API.
 
 ```yaml
 annotations:
@@ -367,10 +312,10 @@ annotations:
 
 These annotations are added to each ArgoCD Application so that the notification system knows which pull request and repository to interact with.  
 
-- `notifications.argoproj.io/subscribe.sync-operation-change.github` — subscribes the application to the **GitHub notification trigger**, ensuring a comment is added when the sync operation status changes.  
-- `notifications.argoproj.io/github.repo` — specifies the target GitHub repository where the pull request exists.  
-- `argocd-notifications.argoproj.io/github.pr.number` — dynamically references the PR number, allowing ArgoCD to comment on the correct pull request.  
-- `argocd-notifications.argoproj.io/github.pr.head_sha` — captures the PR’s latest commit SHA, which can be useful for tracking which commit was deployed in the preview environment.
+- `notifications.argoproj.io/subscribe.sync-operation-change.github` — subscribes the application to the **GitHub notification trigger**, ensuring a comment is added when the sync operation status changes  
+- `notifications.argoproj.io/github.repo` — specifies the target GitHub repository where the pull request exists  
+- `argocd-notifications.argoproj.io/github.pr.number` — dynamically references the PR number, allowing ArgoCD to comment on the correct pull request  
+- `argocd-notifications.argoproj.io/github.pr.head_sha` — captures the PR's latest commit SHA, which can be useful for tracking which commit was deployed in the preview environment
 
 In short, these annotations bridge the connection between ArgoCD and GitHub, enabling automated, PR-specific deployment notifications.
 
@@ -378,6 +323,6 @@ In short, these annotations bridge the connection between ArgoCD and GitHub, ena
 
 Implementing **GitOps-based preview environments with ArgoCD on EKS** has significantly streamlined our development and review process. Every pull request now automatically gets its own isolated environment, giving developers and reviewers instant access to a live version of the changes before merging. This not only improves collaboration and testing accuracy but also reduces manual deployment overhead.
 
-By leveraging ArgoCD’s **ApplicationSet**, **Notifications**, and **GitHub integration**, we achieved a fully automated workflow — from PR creation to deployment and cleanup. It aligns perfectly with GitOps principles, ensuring that every environment is declarative, traceable, and reproducible.
+By leveraging ArgoCD's **ApplicationSet**, **Notifications**, and **GitHub integration**, we achieved a fully automated workflow—from PR creation to deployment and cleanup. It aligns perfectly with GitOps principles, ensuring that every environment is declarative, traceable, and reproducible.
 
-Overall, this setup has enhanced visibility, consistency, and speed across our CI/CD pipeline. It’s a scalable foundation that we can continue to build on as our infrastructure and teams grow.
+Overall, this setup has enhanced visibility, consistency, and speed across our CI/CD pipeline. It's a scalable foundation that we can continue to build on as our infrastructure and teams grow.
