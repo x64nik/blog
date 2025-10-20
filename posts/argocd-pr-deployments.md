@@ -11,7 +11,7 @@ That's when we implemented **GitOps-based preview environments with ArgoCD**. Th
 
 In this post, we'll walk through how we set up **preview deployments using ArgoCD on EKS**, the challenges we faced, and how this approach improved our deployment speed, consistency, and developer experience.
 
-## How it Works
+## How It Works
 
 The following diagram illustrates how our GitOps-based preview environment workflow is structured with **GitHub Actions**, **ArgoCD**, and **AWS EKS**.
 
@@ -123,11 +123,11 @@ spec:
           - CreateNamespace=true
 ```
 
-## Create Github Actions Workflows
+## Create GitHub Actions Workflows
 
-<img alt="GitHub Actions preview deployment run" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
+<img alt="GitHub Actions preview deployment run" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-github-action.png" width="1280" height="720"/>
 
-### Detect the deployment env
+### Detect the Deployment Environment
 
 ```yaml
 set-variables:
@@ -150,7 +150,7 @@ set-variables:
 ```
 Here we're checking which branch the commit lies on. If it's the main branch, we consider it a production deployment (Helm update directly, no PR environment). Otherwise, we consider it a preview deployment. For multiple environments like PR, dev, staging, QA, and prod, we can also refine the existing job to check for specific branch formats.
 
-### Docker build, Trivy scan and push
+### Docker Build, Trivy Scan, and Push
 
 This job handles the complete container lifecycle:
 
@@ -201,7 +201,7 @@ build-scan-push:
 
 This job extracts the short SHA hash from the commit, logs into AWS ECR, builds the Docker image, publishes it to our ECR repository, and runs a Trivy scan to generate an SBOM and create a GitHub artifact.
 
-### Label the PR as preview-ready
+### Label the PR as Preview-Ready
 
 This is a very important step. Our ArgoCD is monitoring the repository PRs, but it's not taking any action until there is a `preview-ready` label on that PR.
 ```yaml
@@ -225,7 +225,7 @@ You might be thinking, "Why are we doing this? Can't we just monitor PRs only?" 
 
 Once the PR is labeled as preview-ready, our ArgoCD will consider that PR and the ApplicationSet will do its magic—creating an ArgoCD app with the Helm chart deployment.
 
-<img alt="Argocd PR Deployed" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
+<img alt="Argocd PR Deployed" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-pr-deployed.png" width="1280" height="720"/>
 
 As we can see, our application is up and running in an isolated namespace.
 
@@ -267,9 +267,9 @@ argocd-sync:
       argocd app wait $ARGOCD_APP_NAME --timeout 600 --health
 ```
 
-## Adding comments in PR
+## Adding Comments in PR
 
-<img alt="Adding comments in PR" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/github-actions-preview-run.png" width="1280" height="720"/>
+<img alt="Adding comments in PR" src="https://raw.githubusercontent.com/x64nik/blog/refs/heads/main/public/images/argocd-pr-comment.png" width="1280" height="720"/>
 
 
 Once the PR is successfully deployed to the preview environment, we wanted developers to receive instant feedback directly in the PR itself — without needing to open ArgoCD. To achieve this, we configured **ArgoCD Notifications** to post a detailed deployment comment in the corresponding GitHub PR whenever the application reaches a healthy state.
@@ -332,3 +332,9 @@ Implementing **GitOps-based preview environments with ArgoCD on EKS** has signif
 By leveraging ArgoCD's **ApplicationSet**, **Notifications**, and **GitHub integration**, we achieved a fully automated workflow—from PR creation to deployment and cleanup. It aligns perfectly with GitOps principles, ensuring that every environment is declarative, traceable, and reproducible.
 
 Overall, this setup has enhanced visibility, consistency, and speed across our CI/CD pipeline. It's a scalable foundation that we can continue to build on as our infrastructure and teams grow.
+
+### References
+
+- https://piotrminkowski.com/2023/06/19/preview-environments-on-kubernetes-with-argocd/
+- https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
+- https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/
