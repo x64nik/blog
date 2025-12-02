@@ -327,11 +327,7 @@ In short, these annotations bridge the connection between ArgoCD and GitHub, ena
 
 ## Conclusion
 
-Implementing **GitOps-based preview environments with ArgoCD on EKS** has significantly streamlined our development and review process. Every pull request now automatically gets its own isolated environment, giving developers and reviewers instant access to a live version of the changes before merging. This not only improves collaboration and testing accuracy but also reduces manual deployment overhead.
-
-By leveraging ArgoCD's **ApplicationSet**, **Notifications**, and **GitHub integration**, we achieved a fully automated workflow—from PR creation to deployment and cleanup. It aligns perfectly with GitOps principles, ensuring that every environment is declarative, traceable, and reproducible.
-
-Overall, this setup has enhanced visibility, consistency, and speed across our CI/CD pipeline. It's a scalable foundation that we can continue to build on as our infrastructure and teams grow.
+Preview environments with ArgoCD on EKS gave every PR a real URL, faster reviews, and fewer “works‑on‑my‑machine” surprises. Two simple tweaks made it reliable for us: gate deploys on a `preview‑ready` label and force a sync after the image push. Now each PR gets its own namespace and predictable URL—easy to review, easy to clean up, and fully traceable. If you adopt this, start with one service and keep it boring; polish can come later.
 
 ### References
 
