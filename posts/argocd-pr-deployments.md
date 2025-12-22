@@ -1,6 +1,6 @@
 ---
 title: "Implementing GitOps Preview Environments with ArgoCD on EKS"
-date: "Oct 11, 2024"
+date: "Oct 11, 2025"
 ---
 
 ## Introduction
