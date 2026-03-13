@@ -1,0 +1,14 @@
+baseURL = 'https://rushidarunte.com/'
+languageCode = 'en-us'
+title = 'Just A Typical Computer Nerd'
+theme = 'ritzy'
+
+# Meta tags
+[params]
+  author = "Rushi"
+  description = "DevOps Engineer | Homelab Enthusiast | ConfigCloud Creator"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

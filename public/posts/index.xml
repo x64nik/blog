@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Just A Typical Computer Nerd</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Just A Typical Computer Nerd</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 11 Oct 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Implementing GitOps Preview Environments with ArgoCD on EKS</title>
+      <link>http://localhost:1313/posts/argocd-pr-deployments/</link>
+      <pubDate>Sat, 11 Oct 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/argocd-pr-deployments/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;As our applications grew and our development teams expanded, we needed a reliable way to preview code changes before merging them into production. Traditional preview deployments worked well initially, but we wanted a solution that aligned with our GitOps workflow and could scale seamlessly within our AWS EKS infrastructure.&lt;/p&gt;&#xA;&lt;p&gt;That&amp;rsquo;s when we implemented &lt;strong&gt;GitOps-based preview environments with ArgoCD&lt;/strong&gt;. This setup allows each pull request to automatically spin up its own isolated environment on Kubernetes, complete with an ingress domain that includes the PR number as a subdomain. Whenever a PR receives new commits, the corresponding environment automatically updates with the latest image tag. Once the PR is closed or merged, the environment is automatically cleaned up—saving costs and reducing manual overhead.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What I Am Running on My Homelab</title>
+      <link>http://localhost:1313/posts/homelab-overview/</link>
+      <pubDate>Sat, 27 Jan 2024 00:00:00 +0530</pubDate>
+      <guid>http://localhost:1313/posts/homelab-overview/</guid>
+      <description>&lt;img alt=&#34;1&#34; src=&#34;http://localhost:1313/images/homelab-diagram.png&#34; width=&#34;1280&#34; height=&#34;720&#34;/&gt;&#xA;&lt;h2 id=&#34;hardware&#34;&gt;Hardware&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Dell R720XD Server Rack &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;32 x Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz (2 Sockets) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;126GB DDR3 Memory   &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;240x2GB SSD (Boot Drive) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;4x2TB SAS (Primary Storage) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;500x2GB HDD (Backup NAS) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;BRCM 10G/GbE 2+2P 57800 rNDC (Integrated NIC) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;750wx2 Power Supplies &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;Dell PERC H710 Mini into IT Mode (For ZFS) &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;TP-Link Ac1200 Mbps ArcherA6 Router &lt;br/&gt;&lt;/li&gt;&#xA;&lt;li&gt;TP-Link LS105G Gigabit Switch &lt;br/&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;img alt=&#34;1&#34; src=&#34;http://localhost:1313/images/rack.png&#34; width=&#34;480&#34; height=&#34;100&#34;/&gt;&#xA;&lt;p&gt;This is a new server that I bought 8 months ago, before that I was using HP Compaq SFF PC :) &lt;br&gt;&#xA;I have a Dell PERC H710 Mini RAID Card installed in my server, which doesn&amp;rsquo;t support IT mode. To resolve this, I had to flash it into IT mode using custom firmware.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>How to start your own homelab with old computers</title>
+      <link>http://localhost:1313/posts/homelab-basics/</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 +0530</pubDate>
+      <guid>http://localhost:1313/posts/homelab-basics/</guid>
+      <description>&lt;p&gt;When I was in my engineering, I got to know about homelabbing stuff through YouTube videos and Reddit posts. At that time, I was running multiple virtual machines in VMware and VirtualBox, and it was so frustrating because I was running all that on my personal workstation (gaming PC :D). I was familiar with type-1 hypervisors but never explored that area because I thought there was only one hypervisor in the market, VMware, which is paid, and I didn&amp;rsquo;t want to spend money on its subscription. Then, someone told me about the Proxmox hypervisor, and oh my god, that thing got me into this homelabbing addiction! :D&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

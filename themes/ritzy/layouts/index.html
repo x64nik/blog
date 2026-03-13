@@ -1,0 +1,72 @@
+{{ define "main" }}
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+  
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto; /* Center the container horizontally */
+    max-width: 960px; /* Set to the same as content max-width for readability */
+    padding: 0 20px; /* Keep padding to prevent content from touching the edge */
+  }
+  
+  .content-column {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: auto;
+    max-width: 960px; /* Maximum width for readability */
+    font-size: 15px;
+  }
+  
+  @media (max-width: 992px) {
+    .page-container {
+      flex-direction: column;
+    }
+    
+    .content-column {
+      width: 100%;
+      padding-right: 0;
+      min-width: auto; /* Remove min-width on smaller screens */
+      max-width: 960px; /* Keep the maximum width for readability */
+      margin: 0 auto; /* Center on mobile */
+    }
+  }
+</style>
+
+<div class="page-container">
+  <div class="content-column">
+    <div class="section">
+      {{ with .Site.GetPage "_about" }}
+        {{ .Content }}
+      {{ end }}
+    </div>    
+    
+    <div class="section">
+      <div class="works-title">Writing</div>
+
+      {{ $featured := where (where .Site.RegularPages "Section" "posts") "Params.featured" true }}
+      {{ range first 4 (sort $featured "Date" "desc") }}
+      <div class="work-item">
+        <a href="{{ .RelPermalink }}" class="work-link">
+          <span class="work-title">{{ .Title }}</span> 
+          <span class="year">({{ if .Params.originalYear }}{{ .Params.originalYear }}{{ else }}{{ .Date.Format "2006" }}{{ end }})</span>
+          <div class="description">{{ .Description }}</div>
+        </a>
+      </div>
+      {{ end }}
+
+      <div class="contact">
+        <a href="/posts" style="color: #58a6ff; text-decoration: underline; text-decoration-thickness: 1px;">All blogs →</a>
+      </div>
+    </div>
+
+    <div class="contact">
+        {{ with .Site.GetPage "_contact" }}
+          {{ .Content }}
+        {{ end }} 
+    </div>
+  </div>
+</div>
+{{ end }}

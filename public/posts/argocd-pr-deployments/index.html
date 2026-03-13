@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Implementing GitOps Preview Environments with ArgoCD on EKS | Just A Typical Computer Nerd</title>
+    <meta name="description" content="Learn how we implemented GitOps-based preview environments with ArgoCD on AWS EKS. Each pull request automatically gets its own isolated Kubernetes environment with automatic cleanup." />
+    <meta property="og:title" content="Implementing GitOps Preview Environments with ArgoCD on EKS | Just A Typical Computer Nerd" />
+    <meta property="og:description" content="Learn how we implemented GitOps-based preview environments with ArgoCD on AWS EKS. Each pull request automatically gets its own isolated Kubernetes environment with automatic cleanup." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:1313/posts/argocd-pr-deployments/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Implementing GitOps Preview Environments with ArgoCD on EKS | Just A Typical Computer Nerd" />
+    <meta name="twitter:description" content="Learn how we implemented GitOps-based preview environments with ArgoCD on AWS EKS. Each pull request automatically gets its own isolated Kubernetes environment with automatic cleanup." />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #c9d1d9;
+        background-color: #0d1117;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      h1 {
+        font-family: 'Consolas', monospace;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 40px 0;
+        color: #c9d1d9;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+        line-height: 1.7;
+      }
+
+      a {
+        color: #58a6ff;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        color: #79c0ff;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .works-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #c9d1d9;
+      }
+
+      .work-item {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+
+      .work-link {
+        display: block;
+        text-decoration: none;
+        color: #c9d1d9;
+      }
+
+      .work-link:hover {
+        opacity: 0.8;
+      }
+
+      .work-title {
+        font-weight: 500;
+      }
+
+      .publication {
+        color: #58a6ff;
+      }
+
+      .year {
+        color: #8b949e;
+      }
+
+      .description {
+        color: #8b949e;
+        font-style: italic;
+        margin-top: 4px;
+      }
+
+      .contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #30363d;
+      }
+
+      .footer-image {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .footer-image img {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .social-links a {
+        color: #8b949e;
+        transition: color 0.2s ease;
+      }
+
+      .social-links a:hover {
+        color: #58a6ff;
+      }
+
+      .social-links svg {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+      
+       
+      pre {
+        background-color: #161b22;
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+      
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      pre code {
+        display: block;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        word-break: normal;
+        overflow-x: auto;
+      }
+      
+       
+      p code, li code, h1 code, h2 code, h3 code {
+        background-color: #161b22;
+        padding: 3px 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+       
+      .post-content mjx-container[display="true"] {
+        display: block;
+        text-align: center;
+        margin: 1em 0;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        min-height: unset;
+      }
+       
+      .post-content mjx-container[display="true"] mjx-math {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: pre;
+        box-sizing: border-box;
+        min-height: unset;
+      }
+       
+      .post-content {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+      
+       
+      .post-content img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      
+       
+      .post-content img + em {
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        color: #8b949e;
+        margin-top: -1em;
+        margin-bottom: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+  
+  .post-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .post-header {
+    margin-bottom: 40px;
+  }
+  
+  .post-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #c9d1d9;
+  }
+  
+  .post-date {
+    color: #9d9d9d;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .post-description {
+    font-style: italic;
+    color: #8b949e;
+    margin-bottom: 30px;
+    font-size: 17px;
+  }
+  
+  .post-content {
+    line-height: 1.8;
+    color: #c9d1d9;
+  }
+  
+  .post-content h2 {
+    font-family: 'Consolas', monospace;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 30px 0 20px 0;
+    color: #c9d1d9;
+  }
+  
+  .post-content p {
+    margin-bottom: 20px;
+  }
+  
+  .post-content img {
+    display: block;
+    width: 80%;
+    max-width: 80%;
+    height: auto;
+    margin: 2rem auto;
+    border-radius: 4px;
+  }
+  
+   
+  .post-content img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8b949e;
+    margin-top: -0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .post-content em {
+    color: #8b949e;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="post-container">
+  <div class="post-header">
+    <h1 class="post-title">Implementing GitOps Preview Environments with ArgoCD on EKS</h1>
+    <div class="post-date">October 11, 2025</div>
+  </div>
+  
+  <div class="post-content">
+    <h2 id="introduction">Introduction</h2>
+<p>As our applications grew and our development teams expanded, we needed a reliable way to preview code changes before merging them into production. Traditional preview deployments worked well initially, but we wanted a solution that aligned with our GitOps workflow and could scale seamlessly within our AWS EKS infrastructure.</p>
+<p>That&rsquo;s when we implemented <strong>GitOps-based preview environments with ArgoCD</strong>. This setup allows each pull request to automatically spin up its own isolated environment on Kubernetes, complete with an ingress domain that includes the PR number as a subdomain. Whenever a PR receives new commits, the corresponding environment automatically updates with the latest image tag. Once the PR is closed or merged, the environment is automatically cleaned up—saving costs and reducing manual overhead.</p>
+<p>In this post, we&rsquo;ll walk through how we set up <strong>preview deployments using ArgoCD on EKS</strong>, the challenges we faced, and how this approach improved our deployment speed, consistency, and developer experience.</p>
+<h2 id="how-it-works">How It Works</h2>
+<p>The following diagram illustrates how our GitOps-based preview environment workflow is structured with <strong>GitHub Actions</strong>, <strong>ArgoCD</strong>, and <strong>AWS EKS</strong>.</p>
+<h4 id="argocd-preview-deployment-architecture">ArgoCD Preview Deployment Architecture</h4>
+<img alt="ArgoCD Preview Deployment Architecture" src="/images/argocd-pr-deployment-diagram.png" width="1280" height="720"/>
+<p>Each pull request triggers a dedicated CI/CD pipeline in <strong>GitHub Actions</strong>, which performs a series of automated steps:</p>
+<ul>
+<li><strong>Environment setup:</strong> Detects the deployment environment by checking the branch type and defines environment variables such as the PR number and branch name</li>
+<li><strong>Static checks:</strong> Runs Dockerfile linting and vulnerability scanning using <strong>Trivy</strong></li>
+<li><strong>Image build and push:</strong> Builds the Docker image, tags it with the environment name and commit SHA, and pushes it to <strong>Amazon ECR</strong></li>
+<li><strong>Helm chart update:</strong> Updates the <code>values.yaml</code> file with the new image tag (only for production deployments)</li>
+<li><strong>Label PR:</strong> Labels the PR as &ldquo;preview-ready&rdquo;</li>
+<li><strong>ArgoCD sync:</strong> Manually calls the ArgoCD sync API to deploy the updated Helm chart</li>
+</ul>
+<p>ArgoCD continuously monitors both the <strong>application repository</strong> and the <strong>Helm chart repository</strong> for changes. When a new or updated PR is detected, it automatically syncs the configuration and deploys the corresponding environment into a dedicated <strong>namespace</strong> within the <strong>EKS cluster</strong>.</p>
+<p>Each namespace is named after the branch or PR number (for example, <code>branch-01</code> and <code>appname-pr-123</code>), ensuring isolation between environments. Once a PR is closed or merged, the corresponding namespace is deleted.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> This guide assumes you already have a running Kubernetes cluster with ArgoCD installed and your application repository includes a Helm chart.</p>
+</blockquote>
+<h2 id="create-argocd-applicationset">Create ArgoCD ApplicationSet</h2>
+<p>The ApplicationSet is at the core of how preview environments are dynamically created and destroyed. It allows ArgoCD to automatically generate ArgoCD Application resources based on a defined generator—in our case, <strong>pull requests</strong> from GitHub.</p>
+<p>Whenever a new pull request is opened, the ApplicationSet controller detects it through the <strong>PR generator</strong> and automatically creates a new ArgoCD Application pointing to the corresponding branch or commit. Each application deploys into its own <strong>namespace</strong>, typically named after the PR number or branch name.</p>
+<p>First, we need to create a GitHub token secret, which will be used by ArgoCD to call the GitHub API to detect opened pull requests.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>k create secret generic github-token <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --from-literal<span style="color:#f92672">=</span>token<span style="color:#f92672">=</span>&lt;GITHUB_PERSON_ACCESS_TOKEN&gt;
+</span></span></code></pre></div><p>We&rsquo;re providing the Helm values as a string in the ApplicationSet itself because this is a Next.js frontend application and we only need to override basic settings like name, fullname, image tag, and ingress host.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">argoproj.io/v1alpha1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ApplicationSet</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">app-preview-deployment</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">argocd</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">goTemplate</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">goTemplateOptions</span>: [<span style="color:#e6db74">&#34;missingkey=error&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">generators</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">pullRequest</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">github</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">owner</span>: <span style="color:#ae81ff">nik</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">repo</span>: <span style="color:#ae81ff">app-repo</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">tokenRef</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">secretName</span>: <span style="color:#ae81ff">github-token</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">key</span>: <span style="color:#ae81ff">token</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">preview-ready</span> <span style="color:#75715e"># Triggers only when PR is labeled as preview-ready</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">requeueAfterSeconds</span>: <span style="color:#ae81ff">60</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;app-ui-pr-{{ .number }}&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">argocd</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">notifications.argoproj.io/subscribe.sync-operation-change.github</span>: <span style="color:#ae81ff">nik-argocd-preview-deployment</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">notifications.argoproj.io/github.repo</span>: <span style="color:#e6db74">&#34;nik/app-repo&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">argocd-notifications.argoproj.io/github.pr.number</span>: <span style="color:#e6db74">&#34;{{ .number }}&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">argocd-notifications.argoproj.io/github.pr.head_sha</span>: <span style="color:#e6db74">&#34;{{ .head_sha }}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">project</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">source</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">repoURL</span>: <span style="color:#ae81ff">https://github.com/nik/app-helm-chart.git</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">targetRevision</span>: <span style="color:#ae81ff">main</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">path</span>: <span style="color:#ae81ff">helm-chart</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">helm</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">valueFiles</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#ae81ff">values.yaml</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">values</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            nameOverride: app-ui-pr-{{ .number }}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            fullnameOverride: app-ui-pr-{{ .number }}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            serviceAccount:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              create: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              name: &#34;app-ui-pr-{{ .number }}-svc-acc&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            image:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              repository: &#34;1234567.dkr.ecr.us-east-1.amazonaws.com/internal/app-repo&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              tag: preview-{{ .head_short_sha_7 }}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            ingress:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              hosts:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                - host: app-ui-pr-{{ .number }}.awsp.nik.xyz
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                  paths:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    - path: /
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                      pathType: Prefix
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              tls:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                - hosts:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    - app-ui-pr-{{ .number }}.awsp.nik.xyz
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                  secretName: app-ui-pr-{{ .number }}-awsp-domain-tls</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">server</span>: <span style="color:#ae81ff">https://kubernetes.default.svc</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">app-ui-pr-{{ .number }}</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">syncPolicy</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">automated</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">prune</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">selfHeal</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">managedNamespaceMetadata</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">app.kubernetes.io/instance</span>: <span style="color:#ae81ff">app-ui-pr-{{ .number }}</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">argocd.argoproj.io/tracking-id</span>: &gt;-<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              app-ui-pr-{{ .number }}:app/Namespace:app-ui-pr-{{ .number }}/app-ui-pr-{{ .number }}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">syncOptions</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">CreateNamespace=true</span>
+</span></span></code></pre></div><h2 id="create-github-actions-workflows">Create GitHub Actions Workflows</h2>
+<img alt="GitHub Actions preview deployment run" src="/images/argocd-github-action.png" width="1280" height="720"/>
+<h3 id="detect-the-deployment-environment">Detect the Deployment Environment</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">set-variables</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">outputs</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">deploy-env</span>: <span style="color:#ae81ff">${{ steps.set-env.outputs.deploy-env }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Set deploy environment</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id</span>: <span style="color:#ae81ff">set-env</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        echo &#34;GITHUB_REF is: $GITHUB_REF&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        BRANCH_NAME=&#34;${GITHUB_REF##*/}&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        if [ &#34;$BRANCH_NAME&#34; == &#34;main&#34; ]; then
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          DEPLOY_ENV=&#34;production&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        else
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          DEPLOY_ENV=&#34;preview&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        fi
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        echo &#34;deploy-env=$DEPLOY_ENV&#34; &gt;&gt; $GITHUB_OUTPUT</span>
+</span></span></code></pre></div><p>Here we&rsquo;re checking which branch the commit lies on. If it&rsquo;s the main branch, we consider it a production deployment (Helm update directly, no PR environment). Otherwise, we consider it a preview deployment. For multiple environments like PR, dev, staging, QA, and prod, we can also refine the existing job to check for specific branch formats.</p>
+<h3 id="docker-build-trivy-scan-and-push">Docker Build, Trivy Scan, and Push</h3>
+<p>This job handles the complete container lifecycle:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">build-scan-push</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">environment</span>: <span style="color:#ae81ff">${{ inputs.deploy-env }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">outputs</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">image-tag</span>: <span style="color:#ae81ff">${{ steps.meta.outputs.tags }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">${{ inputs.runs-on }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Checkout repository</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v3</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Get short SHA</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id</span>: <span style="color:#ae81ff">short_sha</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">run</span>: <span style="color:#ae81ff">echo &#34;sha_short=$(echo ${{ github.event.pull_request.head.sha || github.sha }} | cut -c1-7)&#34; &gt;&gt; $GITHUB_OUTPUT</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Docker meta</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id</span>: <span style="color:#ae81ff">meta</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">docker/metadata-action@v5</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">images</span>: <span style="color:#ae81ff">${{ inputs.docker-registry }}/${{ inputs.docker-repository }}/${{ inputs.docker-image-name }}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">tags</span>: <span style="color:#ae81ff">${{ inputs.deploy-env }}-${{ steps.short_sha.outputs.sha_short }}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Configure AWS credentials</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">if</span>: <span style="color:#ae81ff">inputs.docker-registry-type == &#39;ecr&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">aws-actions/configureaws-credentials@v4</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">role-to-assume</span>: <span style="color:#ae81ff">${{ inputs.role-to-assume }} </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">aws-region</span>: <span style="color:#ae81ff">${{ inputs.aws-region }}</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Login to Amazon ECR</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">if</span>: <span style="color:#ae81ff">inputs.docker-registry-type == &#39;ecr&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">aws-actions/amazon-ecr-login@v1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Build and push image</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        docker build -t ${{ steps.meta.outputs.tags }} .
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        docker push ${{ steps.meta.outputs.tags }}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            </span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Upload Trivy SBOM</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/upload-artifact@v4</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">name</span>: <span style="color:#ae81ff">${{ inputs.project }}-image-sbom</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">path</span>: <span style="color:#e6db74">&#39;${{ github.workspace }}/${{ inputs.project }}-image.sbom.json&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">retention-days</span>: <span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><p>This job extracts the short SHA hash from the commit, logs into AWS ECR, builds the Docker image, publishes it to our ECR repository, and runs a Trivy scan to generate an SBOM and create a GitHub artifact.</p>
+<h3 id="label-the-pr-as-preview-ready">Label the PR as Preview-Ready</h3>
+<p>This is a very important step. Our ArgoCD is monitoring the repository PRs, but it&rsquo;s not taking any action until there is a <code>preview-ready</code> label on that PR.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">pr-ready</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">needs</span>: <span style="color:#ae81ff">build-scan-push</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">if</span>: <span style="color:#ae81ff">inputs.deploy-env == &#39;preview&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Checkout (for GitHub CLI)</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v4</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Add &#39;preview-ready&#39; label to PR</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">GH_TOKEN</span>: <span style="color:#ae81ff">${{ github.token }}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">PR_NUMBER</span>: <span style="color:#ae81ff">${{ github.event.number }}</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        gh pr edit &#34;$PR_NUMBER&#34; --add-label &#34;preview-ready&#34;</span>
+</span></span></code></pre></div><p>You might be thinking, &ldquo;Why are we doing this? Can&rsquo;t we just monitor PRs only?&rdquo; The reason is that in our case, it takes ~5-8 minutes to build the Docker image. If we trigger ArgoCD based on the PR event, ArgoCD will deploy the application but it will fail with an ImagePullError because the Docker build isn&rsquo;t completed yet and there&rsquo;s no image on ECR for that commit. To avoid this issue, we label our PR only after the Docker build and push job is successful.</p>
+<h3 id="argocd-trigger">ArgoCD Trigger</h3>
+<p>Once the PR is labeled as preview-ready, our ArgoCD will consider that PR and the ApplicationSet will do its magic—creating an ArgoCD app with the Helm chart deployment.</p>
+<img alt="Argocd PR Deployed" src="/images/argocd-pr-deployed.png" width="1280" height="720"/>
+<p>As we can see, our application is up and running in an isolated namespace.</p>
+<h3 id="updating-existing-pr">Updating Existing PR</h3>
+<p>Now let&rsquo;s say a developer wants to push hotfixes to an existing PR and we want to deploy them into the existing environment that we created for that PR. It&rsquo;s very straightforward—our ArgoCD app is already monitoring the PR, so if we push any commit to that PR, ArgoCD will detect it and try to sync it. However, it won&rsquo;t be able to pull the updated Docker image (our previous ImagePullBackOff error) because it&rsquo;s still in the build process. That&rsquo;s fine in this case because the PR is already labeled as preview-ready, so once the Docker image is built, we will forcefully sync the ArgoCD app. This time we&rsquo;re 100% sure that ArgoCD will be able to pull the image because our Docker build stage was completed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">argocd-sync</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">if</span>: <span style="color:#ae81ff">inputs.deploy-env == &#39;preview&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">environment</span>: <span style="color:#ae81ff">${{ inputs.deploy-env }}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Checkout code</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v4</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Install ArgoCD CLI</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      rm argocd-linux-amd64</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Set ArgoCD app name</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      APP_NAME=&#34;${{ inputs.argocd-app-name }}-${{ github.event.number }}&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      echo &#34;ARGOCD_APP_NAME=$APP_NAME&#34; &gt;&gt; $GITHUB_ENV
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      </span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Login to ArgoCD</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      argocd login ${{ secrets.ARGOCD_SERVER }} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        --username ${{ secrets.ARGOCD_USERNAME }} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        --password ${{ secrets.ARGOCD_PASSWORD }} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        --insecure
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        </span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Sync ArgoCD Application</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      argocd app sync $ARGOCD_APP_NAME --force
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      argocd app wait $ARGOCD_APP_NAME --timeout 600 --health</span>
+</span></span></code></pre></div><h2 id="adding-comments-in-pr">Adding Comments in PR</h2>
+<img alt="Adding comments in PR" src="/images/argocd-pr-comment.png" width="1280" height="720"/>
+<p>Once the PR is successfully deployed to the preview environment, we wanted developers to receive instant feedback directly in the PR itself — without needing to open ArgoCD. To achieve this, we configured <strong>ArgoCD Notifications</strong> to post a detailed deployment comment in the corresponding GitHub PR whenever the application reaches a healthy state.</p>
+<p>Using a <code>ConfigMap</code> (<code>argocd-notifications-cm</code>), we defined a <strong>GitHub webhook service</strong> and a <strong>trigger</strong> that listens for sync and health status changes in ArgoCD applications. When the status becomes <code>Healthy</code>, ArgoCD automatically sends a webhook request to the GitHub API, adding a formatted comment to the PR.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ConfigMap</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">argocd-notifications-cm</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">argocd</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">data</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">service.webhook.github</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    url: https://api.github.com
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    headers:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - name: Authorization
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      value: token $github-token
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - name: Accept
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      value: application/vnd.github.v3+json</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trigger.sync-operation-change</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - when: app.status.health.status == &#39;Healthy&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      send: [github-pr-comment]</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template.github-pr-comment</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    webhook:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      github:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        method: POST
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        path: /repos/{{index .app.metadata.annotations &#34;notifications.argoproj.io/github.repo&#34;}}/issues/{{index .app.metadata.annotations &#34;argocd-notifications.argoproj.io/github.pr.number&#34;}}/comments
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        body: |
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &#34;body&#34;: &#34;🚀 **Deployment Successful**\n\n## 📋 Application Details\n- **Name:** `{{.app.metadata.name}}`\n- **Namespace:** `{{.app.spec.destination.namespace}}`\n- **Health Status:** {{.app.status.health.status}}\n- **Sync Status:** {{.app.status.sync.status}}\n- **Resources:** {{.app.status.resources | len}} objects deployed\n\n## 🌐 Preview Environment\n- **Ingress URL:** [https://app-ui-pr-{{index .app.metadata.annotations &#34;argocd-notifications.argoproj.io/github.pr.number&#34;}}.domain.xyz](https://app-ui-pr-{{index .app.metadata.annotations &#34;argocd-notifications.argoproj.io/github.pr.number&#34;}}.domain.xyz)\n---\n*🤖 Automated deployment notification from ArgoCD*&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          }</span>
+</span></span></code></pre></div><p>Here we&rsquo;re using the GitHub personal access token that we generated previously to call the GitHub API.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">notifications.argoproj.io/subscribe.sync-operation-change.github</span>: <span style="color:#ae81ff">oraczen-argocd-preview-deployment</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># This is what the notification template will use for repoURLPath</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">notifications.argoproj.io/github.repo</span>: <span style="color:#e6db74">&#34;nik/app&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Additional context for notifications</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">argocd-notifications.argoproj.io/github.pr.number</span>: <span style="color:#e6db74">&#34;{{ .number }}&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">argocd-notifications.argoproj.io/github.pr.head_sha</span>: <span style="color:#e6db74">&#34;{{ .head_sha }}&#34;</span>
+</span></span></code></pre></div><p>These annotations are added to each ArgoCD Application so that the notification system knows which pull request and repository to interact with.</p>
+<ul>
+<li><code>notifications.argoproj.io/subscribe.sync-operation-change.github</code> — subscribes the application to the <strong>GitHub notification trigger</strong>, ensuring a comment is added when the sync operation status changes</li>
+<li><code>notifications.argoproj.io/github.repo</code> — specifies the target GitHub repository where the pull request exists</li>
+<li><code>argocd-notifications.argoproj.io/github.pr.number</code> — dynamically references the PR number, allowing ArgoCD to comment on the correct pull request</li>
+<li><code>argocd-notifications.argoproj.io/github.pr.head_sha</code> — captures the PR&rsquo;s latest commit SHA, which can be useful for tracking which commit was deployed in the preview environment</li>
+</ul>
+<p>In short, these annotations bridge the connection between ArgoCD and GitHub, enabling automated, PR-specific deployment notifications.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Implementing <strong>GitOps-based preview environments with ArgoCD on EKS</strong> has significantly streamlined our development and review process. Every pull request now automatically gets its own isolated environment, giving developers and reviewers instant access to a live version of the changes before merging. This not only improves collaboration and testing accuracy but also reduces manual deployment overhead.</p>
+<p>By leveraging ArgoCD&rsquo;s <strong>ApplicationSet</strong>, <strong>Notifications</strong>, and <strong>GitHub integration</strong>, we achieved a fully automated workflow—from PR creation to deployment and cleanup. It aligns perfectly with GitOps principles, ensuring that every environment is declarative, traceable, and reproducible.</p>
+<p>Overall, this setup has enhanced visibility, consistency, and speed across our CI/CD pipeline. It&rsquo;s a scalable foundation that we can continue to build on as our infrastructure and teams grow.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://piotrminkowski.com/2023/06/19/preview-environments-on-kubernetes-with-argocd/">https://piotrminkowski.com/2023/06/19/preview-environments-on-kubernetes-with-argocd/</a></li>
+<li><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/">https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/</a></li>
+<li><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/">https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/</a></li>
+</ul>
+
+  </div>
+  
+  <a href="/" class="back-link">← Back to home</a>
+</div>
+
+    </div>
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </body>
+</html>

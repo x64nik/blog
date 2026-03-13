@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts | Just A Typical Computer Nerd</title>
+    <meta name="description" content="DevOps Engineer | Homelab Enthusiast | ConfigCloud Creator" />
+    <meta property="og:title" content="Posts | Just A Typical Computer Nerd" />
+    <meta property="og:description" content="DevOps Engineer | Homelab Enthusiast | ConfigCloud Creator" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:1313/posts/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Posts | Just A Typical Computer Nerd" />
+    <meta name="twitter:description" content="DevOps Engineer | Homelab Enthusiast | ConfigCloud Creator" />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #c9d1d9;
+        background-color: #0d1117;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      h1 {
+        font-family: 'Consolas', monospace;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 40px 0;
+        color: #c9d1d9;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+        line-height: 1.7;
+      }
+
+      a {
+        color: #58a6ff;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        color: #79c0ff;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .works-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #c9d1d9;
+      }
+
+      .work-item {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+
+      .work-link {
+        display: block;
+        text-decoration: none;
+        color: #c9d1d9;
+      }
+
+      .work-link:hover {
+        opacity: 0.8;
+      }
+
+      .work-title {
+        font-weight: 500;
+      }
+
+      .publication {
+        color: #58a6ff;
+      }
+
+      .year {
+        color: #8b949e;
+      }
+
+      .description {
+        color: #8b949e;
+        font-style: italic;
+        margin-top: 4px;
+      }
+
+      .contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #30363d;
+      }
+
+      .footer-image {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .footer-image img {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .social-links a {
+        color: #8b949e;
+        transition: color 0.2s ease;
+      }
+
+      .social-links a:hover {
+        color: #58a6ff;
+      }
+
+      .social-links svg {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+      
+       
+      pre {
+        background-color: #161b22;
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+      
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      pre code {
+        display: block;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        word-break: normal;
+        overflow-x: auto;
+      }
+      
+       
+      p code, li code, h1 code, h2 code, h3 code {
+        background-color: #161b22;
+        padding: 3px 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+       
+      .post-content mjx-container[display="true"] {
+        display: block;
+        text-align: center;
+        margin: 1em 0;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        min-height: unset;
+      }
+       
+      .post-content mjx-container[display="true"] mjx-math {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: pre;
+        box-sizing: border-box;
+        min-height: unset;
+      }
+       
+      .post-content {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+      
+       
+      .post-content img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      
+       
+      .post-content img + em {
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        color: #8b949e;
+        margin-top: -1em;
+        margin-bottom: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      
+<style>
+  .posts-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .posts-header {
+    margin-bottom: 40px;
+  }
+  
+  .posts-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #c9d1d9;
+  }
+  
+  .posts-description {
+    color: #8b949e;
+    margin-bottom: 30px;
+  }
+  
+  .post-list {
+    margin-bottom: 40px;
+  }
+  
+  .post-item {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #30363d;
+  }
+  
+  .post-item:last-child {
+    border-bottom: none;
+  }
+  
+  .post-link {
+    display: block;
+    text-decoration: none;
+    color: #c9d1d9;
+  }
+  
+  .post-link:hover .post-item-title {
+    color: #58a6ff;
+  }
+  
+  .post-item-title {
+    font-family: 'Consolas', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+  
+  .post-item-date {
+    color: #8b949e;
+    font-style: italic;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+  
+  .post-item-description {
+    color: #8b949e;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="posts-container">
+  <div class="posts-header">
+    <h1 class="posts-title">Posts</h1>
+    
+  </div>
+  
+  <div class="post-list">
+    
+    <div class="post-item">
+      <a href="http://localhost:1313/posts/argocd-pr-deployments/" class="post-link">
+        <h2 class="post-item-title">Implementing GitOps Preview Environments with ArgoCD on EKS</h2>
+        <div class="post-item-date">October 11, 2025</div>
+        <div class="post-item-description">Learn how we implemented GitOps-based preview environments with ArgoCD on AWS EKS. Each pull request automatically gets its own isolated Kubernetes environment with automatic cleanup.</div>
+      </a>
+    </div>
+    
+    <div class="post-item">
+      <a href="http://localhost:1313/posts/homelab-overview/" class="post-link">
+        <h2 class="post-item-title">What I Am Running on My Homelab</h2>
+        <div class="post-item-date">January 27, 2024</div>
+        <div class="post-item-description">A detailed overview of my homelab setup including hardware, services, and future plans.</div>
+      </a>
+    </div>
+    
+    <div class="post-item">
+      <a href="http://localhost:1313/posts/homelab-basics/" class="post-link">
+        <h2 class="post-item-title">How to start your own homelab with old computers</h2>
+        <div class="post-item-date">January 1, 2024</div>
+        <div class="post-item-description">Learn how to start your own homelab for free using old computers and open-source tools like Proxmox.</div>
+      </a>
+    </div>
+    
+  </div>
+  
+  <a href="/" class="back-link">← Back to home</a>
+</div>
+
+    </div>
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </body>
+</html>

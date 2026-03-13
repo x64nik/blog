@@ -1,0 +1,108 @@
+{{ define "main" }}
+<style>
+  .posts-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .posts-header {
+    margin-bottom: 40px;
+  }
+  
+  .posts-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #c9d1d9;
+  }
+  
+  .posts-description {
+    color: #8b949e;
+    margin-bottom: 30px;
+  }
+  
+  .post-list {
+    margin-bottom: 40px;
+  }
+  
+  .post-item {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #30363d;
+  }
+  
+  .post-item:last-child {
+    border-bottom: none;
+  }
+  
+  .post-link {
+    display: block;
+    text-decoration: none;
+    color: #c9d1d9;
+  }
+  
+  .post-link:hover .post-item-title {
+    color: #58a6ff;
+  }
+  
+  .post-item-title {
+    font-family: 'Consolas', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+  
+  .post-item-date {
+    color: #8b949e;
+    font-style: italic;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+  
+  .post-item-description {
+    color: #8b949e;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="posts-container">
+  <div class="posts-header">
+    <h1 class="posts-title">{{ .Title }}</h1>
+    {{ if .Description }}
+    <div class="posts-description">{{ .Description }}</div>
+    {{ end }}
+  </div>
+  
+  <div class="post-list">
+    {{ range .Pages.ByDate.Reverse }}
+    <div class="post-item">
+      <a href="{{ .Permalink }}" class="post-link">
+        <h2 class="post-item-title">{{ .Title }}</h2>
+        <div class="post-item-date">{{ .Date.Format "January 2, 2006" }}</div>
+        <div class="post-item-description">{{ .Description }}</div>
+      </a>
+    </div>
+    {{ end }}
+  </div>
+  
+  <a href="{{ "/" | relURL }}" class="back-link">← Back to home</a>
+</div>
+{{ end }}
