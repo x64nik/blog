@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to start your own homelab with old computers | Just A Typical Computer Nerd</title>
+    <meta name="description" content="Learn how to start your own homelab for free using old computers and open-source tools like Proxmox." />
+    <meta property="og:title" content="How to start your own homelab with old computers | Just A Typical Computer Nerd" />
+    <meta property="og:description" content="Learn how to start your own homelab for free using old computers and open-source tools like Proxmox." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:1313/posts/homelab-basics/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="How to start your own homelab with old computers | Just A Typical Computer Nerd" />
+    <meta name="twitter:description" content="Learn how to start your own homelab for free using old computers and open-source tools like Proxmox." />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #c9d1d9;
+        background-color: #0d1117;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      h1 {
+        font-family: 'Consolas', monospace;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 40px 0;
+        color: #c9d1d9;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+        line-height: 1.7;
+      }
+
+      a {
+        color: #58a6ff;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        color: #79c0ff;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .works-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #c9d1d9;
+      }
+
+      .work-item {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+
+      .work-link {
+        display: block;
+        text-decoration: none;
+        color: #c9d1d9;
+      }
+
+      .work-link:hover {
+        opacity: 0.8;
+      }
+
+      .work-title {
+        font-weight: 500;
+      }
+
+      .publication {
+        color: #58a6ff;
+      }
+
+      .year {
+        color: #8b949e;
+      }
+
+      .description {
+        color: #8b949e;
+        font-style: italic;
+        margin-top: 4px;
+      }
+
+      .contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #30363d;
+      }
+
+      .footer-image {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .footer-image img {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .social-links a {
+        color: #8b949e;
+        transition: color 0.2s ease;
+      }
+
+      .social-links a:hover {
+        color: #58a6ff;
+      }
+
+      .social-links svg {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+      
+       
+      pre {
+        background-color: #161b22;
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+      
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      pre code {
+        display: block;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        word-break: normal;
+        overflow-x: auto;
+      }
+      
+       
+      p code, li code, h1 code, h2 code, h3 code {
+        background-color: #161b22;
+        padding: 3px 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+       
+      .post-content mjx-container[display="true"] {
+        display: block;
+        text-align: center;
+        margin: 1em 0;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        min-height: unset;
+      }
+       
+      .post-content mjx-container[display="true"] mjx-math {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: pre;
+        box-sizing: border-box;
+        min-height: unset;
+      }
+       
+      .post-content {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+      
+       
+      .post-content img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      
+       
+      .post-content img + em {
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        color: #8b949e;
+        margin-top: -1em;
+        margin-bottom: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+  
+  .post-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .post-header {
+    margin-bottom: 40px;
+  }
+  
+  .post-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #c9d1d9;
+  }
+  
+  .post-date {
+    color: #9d9d9d;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .post-description {
+    font-style: italic;
+    color: #8b949e;
+    margin-bottom: 30px;
+    font-size: 17px;
+  }
+  
+  .post-content {
+    line-height: 1.8;
+    color: #c9d1d9;
+  }
+  
+  .post-content h2 {
+    font-family: 'Consolas', monospace;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 30px 0 20px 0;
+    color: #c9d1d9;
+  }
+  
+  .post-content p {
+    margin-bottom: 20px;
+  }
+  
+  .post-content img {
+    display: block;
+    width: 80%;
+    max-width: 80%;
+    height: auto;
+    margin: 2rem auto;
+    border-radius: 4px;
+  }
+  
+   
+  .post-content img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8b949e;
+    margin-top: -0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .post-content em {
+    color: #8b949e;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="post-container">
+  <div class="post-header">
+    <h1 class="post-title">How to start your own homelab with old computers</h1>
+    <div class="post-date">January 1, 2024</div>
+  </div>
+  
+  <div class="post-content">
+    <p>When I was in my engineering, I got to know about homelabbing stuff through YouTube videos and Reddit posts. At that time, I was running multiple virtual machines in VMware and VirtualBox, and it was so frustrating because I was running all that on my personal workstation (gaming PC :D). I was familiar with type-1 hypervisors but never explored that area because I thought there was only one hypervisor in the market, VMware, which is paid, and I didn&rsquo;t want to spend money on its subscription. Then, someone told me about the Proxmox hypervisor, and oh my god, that thing got me into this homelabbing addiction! :D</p>
+<p>In this blog, I will tell you guys how to start your own homelab for free without any enterprise-grade tools/software/hardware—just with the normal computer that&rsquo;s been sitting somewhere in the corner for the last 126 light years, hoping someone will wake it up from hibernation! XD</p>
+<h3 id="hardware-requirement">Hardware Requirement</h3>
+<p><strong>CPU</strong>: Any 4-core processor (i5/i3/i7/AMD, etc.), all we need is 4+ cores<br>
+<strong>Memory</strong>: 8/16GB<br>
+<strong>Storage</strong>: 126GB (for hypervisor) &amp; 2 HDDs (for RAID1)<br>
+<strong>NIC (Network Interface Card)</strong>: 1Gb+<br>
+<strong>Network Switch</strong>: This is not mandatory but it&rsquo;s good if you have one</p>
+<h3 id="choosing-type-1-hypervisor">Choosing Type-1 Hypervisor</h3>
+<p>A Type 1 hypervisor is software that runs directly on computer hardware to manage and create virtual machines without needing an operating system. It allows multiple operating systems to run on one machine.</p>
+<p>There are a few hypervisors in the market, but most of them are paid, like one of the most popular enterprise-level hypervisors, VMware ESXi. However, there are some free and open-source hypervisors, like XEN and Proxmox. I personally prefer Proxmox because its installation is dead simple, and it just feels like installing a normal Debian Linux (by the way, Proxmox is built on top of Debian and KVM).</p>
+<h3 id="installing-proxmox">Installing Proxmox</h3>
+<p>Download the latest Proxmox ISO from their official website, create a bootable USB stick using Rufus or BalenaEtcher, and then install Proxmox. While installing, make sure to select your SSD in the &ldquo;target hard disk&rdquo; section. Installing Proxmox on an SSD is good because it will reduce boot time, and things like updates will be faster than on a normal HDD.</p>
+<h3 id="setting-up-a-zfs-storage-pool">Setting up a ZFS Storage Pool</h3>
+<p>The first thing to do after installation is to create a storage pool. Proxmox supports a lot of storage types, such as ZFS, LVM, LVM-thin, Ceph/RBD, NFS, etc. I prefer ZFS with RAID Level as Mirror. This way, the same data will be written to both the HDDs.</p>
+<h3 id="proxmox-helper-scripts">Proxmox Helper Scripts</h3>
+<p>Proxmox Helper Scripts is a collection of scripts to help you easily make changes to your Proxmox VE server. They help manage PVE version updates, LXC containers, dashboards, etc. You can also use these to disable the subscription nag, so no more subscription pop-ups.</p>
+<p>For installing Home Assistant using a script, run this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>bash -c <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>wget -qLO - https://raw.githubusercontent.com/community-scripts/ProxmoxVE/a4a1821822f0f00fde56bc9b1ebe7204f5e01c08/install/homeassistant-core-install.sh<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><h3 id="spinning-up-your-first-vm">Spinning Up Your First VM</h3>
+<p>Don&rsquo;t use ISO files to install OSes—cloud providers don&rsquo;t use ISO files. They use qcow2 images with cloud-init to automate the initial setup and configuration of virtual machines (VMs) when they are first launched. To create a VM from a qcow2 image, I created a bash script that turns the qcow2 image into a VM template. Then, you can full clone the VM and configure cloud-init settings such as username, password, IP, SSH key, etc., and your VM is ready to boot.</p>
+<p>Here&rsquo;s a sample script to create a VM from a qcow2 image:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>qm create $TEMPLATE_ID --memory $MEMORY --core $CORES --sockets <span style="color:#ae81ff">2</span> --name $TEMPLATE_NAME --net0 virtio,bridge<span style="color:#f92672">=</span>vmbr0
+</span></span><span style="display:flex;"><span>qm disk import $TEMPLATE_ID $QCOW_PATH $POOL_NAME
+</span></span><span style="display:flex;"><span>qm set $TEMPLATE_ID --scsihw virtio-scsi-pci --scsi0 $POOL_NAME:vm-$TEMPLATE_ID-disk-0
+</span></span><span style="display:flex;"><span>qm set $TEMPLATE_ID --ide2 $POOL_NAME:cloudinit
+</span></span><span style="display:flex;"><span>qm set $TEMPLATE_ID --boot c --bootdisk scsi0
+</span></span><span style="display:flex;"><span>qm template $TEMPLATE_ID
+</span></span></code></pre></div><h3 id="managing-your-homelab-with-proxmox">Managing Your Homelab with Proxmox</h3>
+<p>After setting up your Proxmox hypervisor, you&rsquo;re ready to manage and operate virtual machines (VMs). The Proxmox interface allows you to handle everything from hardware configurations to snapshots and network setups.</p>
+<p>Proxmox also supports LXC containers, which are more resource-efficient than VMs and allow for almost native performance. LXC containers are great for smaller workloads, while VMs are best for full operating system isolation.</p>
+<h3 id="cloud-init-and-automation">Cloud-init and Automation</h3>
+<p>Cloud-init automates the configuration of your virtual machines. This means you don&rsquo;t have to manually configure every VM. Cloud-init can automate user settings, SSH key setups, network configurations, and much more.</p>
+<p>By leveraging cloud-init, setting up multiple VMs with varying configurations becomes a breeze.</p>
+
+  </div>
+  
+  <a href="/" class="back-link">← Back to home</a>
+</div>
+
+    </div>
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </body>
+</html>

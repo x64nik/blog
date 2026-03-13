@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What I Am Running on My Homelab | Just A Typical Computer Nerd</title>
+    <meta name="description" content="A detailed overview of my homelab setup including hardware, services, and future plans." />
+    <meta property="og:title" content="What I Am Running on My Homelab | Just A Typical Computer Nerd" />
+    <meta property="og:description" content="A detailed overview of my homelab setup including hardware, services, and future plans." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:1313/posts/homelab-overview/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="What I Am Running on My Homelab | Just A Typical Computer Nerd" />
+    <meta name="twitter:description" content="A detailed overview of my homelab setup including hardware, services, and future plans." />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #c9d1d9;
+        background-color: #0d1117;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      h1 {
+        font-family: 'Consolas', monospace;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 40px 0;
+        color: #c9d1d9;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+        line-height: 1.7;
+      }
+
+      a {
+        color: #58a6ff;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        color: #79c0ff;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .works-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #c9d1d9;
+      }
+
+      .work-item {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+
+      .work-link {
+        display: block;
+        text-decoration: none;
+        color: #c9d1d9;
+      }
+
+      .work-link:hover {
+        opacity: 0.8;
+      }
+
+      .work-title {
+        font-weight: 500;
+      }
+
+      .publication {
+        color: #58a6ff;
+      }
+
+      .year {
+        color: #8b949e;
+      }
+
+      .description {
+        color: #8b949e;
+        font-style: italic;
+        margin-top: 4px;
+      }
+
+      .contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #30363d;
+      }
+
+      .footer-image {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .footer-image img {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .social-links a {
+        color: #8b949e;
+        transition: color 0.2s ease;
+      }
+
+      .social-links a:hover {
+        color: #58a6ff;
+      }
+
+      .social-links svg {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+      
+       
+      pre {
+        background-color: #161b22;
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+      
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      pre code {
+        display: block;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        word-break: normal;
+        overflow-x: auto;
+      }
+      
+       
+      p code, li code, h1 code, h2 code, h3 code {
+        background-color: #161b22;
+        padding: 3px 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+       
+      .post-content mjx-container[display="true"] {
+        display: block;
+        text-align: center;
+        margin: 1em 0;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        min-height: unset;
+      }
+       
+      .post-content mjx-container[display="true"] mjx-math {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: pre;
+        box-sizing: border-box;
+        min-height: unset;
+      }
+       
+      .post-content {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+      
+       
+      .post-content img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      
+       
+      .post-content img + em {
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        color: #8b949e;
+        margin-top: -1em;
+        margin-bottom: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+  
+  .post-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .post-header {
+    margin-bottom: 40px;
+  }
+  
+  .post-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #c9d1d9;
+  }
+  
+  .post-date {
+    color: #9d9d9d;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .post-description {
+    font-style: italic;
+    color: #8b949e;
+    margin-bottom: 30px;
+    font-size: 17px;
+  }
+  
+  .post-content {
+    line-height: 1.8;
+    color: #c9d1d9;
+  }
+  
+  .post-content h2 {
+    font-family: 'Consolas', monospace;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 30px 0 20px 0;
+    color: #c9d1d9;
+  }
+  
+  .post-content p {
+    margin-bottom: 20px;
+  }
+  
+  .post-content img {
+    display: block;
+    width: 80%;
+    max-width: 80%;
+    height: auto;
+    margin: 2rem auto;
+    border-radius: 4px;
+  }
+  
+   
+  .post-content img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8b949e;
+    margin-top: -0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .post-content em {
+    color: #8b949e;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="post-container">
+  <div class="post-header">
+    <h1 class="post-title">What I Am Running on My Homelab</h1>
+    <div class="post-date">January 27, 2024</div>
+  </div>
+  
+  <div class="post-content">
+    <img alt="1" src="/images/homelab-diagram.png" width="1280" height="720"/>
+<h2 id="hardware">Hardware</h2>
+<ul>
+<li>Dell R720XD Server Rack <br/></li>
+<li>32 x Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz (2 Sockets) <br/></li>
+<li>126GB DDR3 Memory   <br/></li>
+<li>240x2GB SSD (Boot Drive) <br/></li>
+<li>4x2TB SAS (Primary Storage) <br/></li>
+<li>500x2GB HDD (Backup NAS) <br/></li>
+<li>BRCM 10G/GbE 2+2P 57800 rNDC (Integrated NIC) <br/></li>
+<li>750wx2 Power Supplies <br/></li>
+<li>Dell PERC H710 Mini into IT Mode (For ZFS) <br/></li>
+<li>TP-Link Ac1200 Mbps ArcherA6 Router <br/></li>
+<li>TP-Link LS105G Gigabit Switch <br/></li>
+</ul>
+<img alt="1" src="/images/rack.png" width="480" height="100"/>
+<p>This is a new server that I bought 8 months ago, before that I was using HP Compaq SFF PC :) <br>
+I have a Dell PERC H710 Mini RAID Card installed in my server, which doesn&rsquo;t support IT mode. To resolve this, I had to flash it into IT mode using custom firmware.</p>
+<img alt="1" src="/images/old-server.png" width="480" height="100"/>
+<h2 id="hypervisor---proxmox-82">Hypervisor - Proxmox 8.2</h2>
+<img alt="1" src="/images/pve.png" width="1280" height="720"/>
+<p>I am using Proxmox 8.2 Type-1 Hyervisor with ZFS it is free and easy to use, i have been using proxmox from last 2 years and my experience is pretty good.</p>
+<h2 id="what-services-am-i-running-">What services am I running ?</h2>
+<h3 id="k3s-cluster">K3S Cluster</h3>
+<img alt="1" src="/images/alphak3s.png" width="1280" height="720"/>
+<p>A six node K3S HA cluster (v1.30.5+k3s1) with two master nodes and four worker nodes, embeded etcd, traefik as ingress controller, metallb and there is one external nginx server acting as a loadbalancer for both master nodes which is running on one of the virtual machines where docker is installed</p>
+<h3 id="metallb">MetalLB <br></h3>
+<p>Kubernetes doesn&rsquo;t natively support network load balancers (Services of type LoadBalancer) for bare-metal clusters. Cloud service providers like AWS, DigitalOcean, Azure, and GCP offer network load balancers (like ELB on AWS), but in a bare-metal setup, services of type LoadBalancer will remain in the &ldquo;pending&rdquo; state indefinitely. To overcome this, I use MetalLB, a load balancer designed specifically for bare-metal Kubernetes clusters. MetalLB operates at Layer 2 or Layer 3 and allows Kubernetes services of type &ldquo;LoadBalancer&rdquo; to function without the need for a cloud provider&rsquo;s managed load balancing service. It directly takes an IP from our router, and this IP appears as the external IP on the service. From there, I can easily point my Cloudflare Tunnels to that IP, and the service is exposed and secured, all without needing a cloud-based load balancer.</p>
+<h3 id="selfhosted-gitlab-runners">Selfhosted Gitlab Runners<br></h3>
+<p>Running self-hosted GitLab Runners to handle my CI/CD workflows. By using self-hosted runners, I gain full control over the execution environment, which allows for faster build times and eliminates reliance on shared runners. I deployed these runners within my K3s cluster, leveraging Helm charts for easy management and scalability. This setup ensures a more efficient and customizable environment for my development pipeline, with the ability to fine-tune configurations to meet my specific needs.</p>
+<h3 id="argocd">Argocd<br></h3>
+<img alt="1" src="/images/argo-apps.png" width="1280" height="720"/>
+<p>I use ArgoCD as my primary GitOps tool to automate the deployment of my self-hosted applications. Some of my personal applications are on GitLab, and their repositories are directly connected to ArgoCD. While I still manually sync the deployments for now, I am in the process of fully automating the workflow using webhooks and Argo Image Updater. Additionally, I&rsquo;m planning to convert all my deployments into Helm charts and maintain a single repository to manage all my K3s deployment configurations efficiently. This approach will streamline updates, reduce manual intervention, and provide a more scalable and organized setup for my home lab.</p>
+<h3 id="traefik-with-cloudflare-tunnels-and-wildcard-dns-entries">Traefik with Cloudflare Tunnels and Wildcard DNS entries<br></h3>
+<p>I&rsquo;m using <strong>Traefik</strong> as the ingress controller for my K3s cluster, and with the help of Cloudflare Tunnels and wildcard DNS entries, I&rsquo;m able to expose any service over a subdomain. Thanks to Cloudflare Tunnels, I don&rsquo;t have to worry about maintaining any CLI issuers or SSL certificates within the cluster—Cloudflare handles the TLS termination for me. Additionally, everything exposed to the internet is secured with MFA, which is an inbuilt feature of Cloudflare Tunnels. I mainly use two types of subdomain schemas: <strong>wildcard-lab.domain.com and wildcard.domain.com</strong>, allowing me to easily manage and route traffic to different services based on the subdomain. This setup gives me a secure and scalable way to expose services while minimizing manual configuration.</p>
+<p><strong>wildcard-lab.domain.com</strong> &ndash;&gt; This is a secured subdomain range which need MFA verification to access
+<strong>wildcard.domain.com</strong> &ndash;&gt; This subdomain schema is publicaly accessible but it also has some sort of security like ddos protection and anti bot verification</p>
+<h3 id="truenas-core">TrueNAS Core<br></h3>
+<img alt="1" src="/images/nas.png" width="1280" height="720"/>
+<p>This server is primarily used as a backup server for Proxmox VM backups, but it also has two storage pools <strong>SMB and NFS</strong> which are utilized as the K3s storage class. Previously, I was using <strong>Longhorn</strong>, but it was too resource-heavy, and the I/O delay was impacting server performance. So, I switched to this simpler and more efficient solution. Currently, the server has two physical hard drives, each <strong>500GB</strong>, which are directly passed through to the VM in a MIRROR configuration. This setup ensures that both drives contain the same data, so in case of a failure, I can simply replace the failed drive with a new one without any data loss.</p>
+<h3 id="databases-and-rabbitmq">Databases and RabbitMQ<br></h3>
+<p>Currently, I&rsquo;m running <strong>PostgreSQL, MongoDB, Redis, and InfluxDB</strong> in Docker containers, but in the future, I plan to migrate most of these databases into my K3s cluster for better scalability and management. Additionally, I&rsquo;m running containerized <strong>RabbitMQ</strong> as a message broker or queue manager, which is being used in one of my IaaS projects that I&rsquo;m currently working on. This setup helps streamline communication between different components of the project, and moving the databases to K3s will further optimize my infrastructure in the long run.</p>
+<h3 id="focalboard-something-like-jira-board">Focalboard something like Jira Board<br></h3>
+<img alt="1" src="/images/focal.png" width="1280" height="720"/>
+<p>Focalboard is an open-source, self-hosted alternative to platforms like Jira, Notion, and Asana. I typically use it as my task management board—whether I&rsquo;m working on personal projects or anything else, I can easily create tasks and organize them. It gives me that project manager vibe, which is pretty cool! It&rsquo;s simple, yet effective for keeping track of all my tasks and progress, and the self-hosted aspect fits perfectly into my home lab setup. It&rsquo;s definitely a useful tool for staying on top of things.</p>
+<h3 id="cloudflare-tunnels">Cloudflare Tunnels<br></h3>
+<p>I&rsquo;m using two Cloudflare tunnels across different networks in my home lab setup. The first tunnel is set up in my primary home LAN, and the second one is in a pfSense VLAN where external users&rsquo; virtual machines (VMs) are deployed. These VMs are isolated and can only access the internet, with inter-VLAN communication disabled. Before switching to pfSense, I was using Proxmox SDN, but I ran into limitations with that setup, so I transitioned to pfSense. Interestingly, I am now utilizing both pfSense as a virtual firewall and Proxmox SDN, which operates as an additional layer above pfSense. This combination gives me enhanced control over the network and firewall configurations.</p>
+<h3 id="pfsense-firewall">Pfsense Firewall<br></h3>
+<img alt="1" src="/images/pfsense.png" width="1280" height="720"/>
+<p>I&rsquo;m using a software-based firewall installed on top of a virtual machine (VM), which has three network interface cards (NICs). The first NIC is the WAN interface, connected directly to our main LAN (192.168.0.0/24) via the router, providing internet connectivity. The second NIC is the LAN interface, serving as the local virtual LAN network for pfSense. The third NIC is split into two virtual interfaces, each tagged for a specific VLAN, handling the VLAN where my private VMs run, ensuring network isolation and specific routing for them. This setup is part of one of my projects, ConfigCloud, which I&rsquo;ll explain in another blog post. The hardware I&rsquo;m using has only one NIC with two 10GbE ports and two empty SFP slots, but for now, I&rsquo;m utilizing just one of the 10GbE ports. However, in the future, I plan to fill those SFP slots to expand my network capabilities.</p>
+<h2 id="monitoring">Monitoring</h2>
+<h3 id="dozzle">Dozzle</h3>
+<img alt="1" src="/images/dozzle.png" width="1280" height="720"/>
+<p>I have three Docker host virtual machines where I&rsquo;m running Dozzle and the Dozzle agent, an open-source and lightweight logging tool. I run the Dozzle master on one of my VMs, while the other Docker hosts are connected via the agent URL. Dozzle supports multiple remote host connections, allowing me to view the logs of all containers running on different hosts on a single page. This setup simplifies log monitoring across multiple machines, providing an efficient way to track and manage container logs in my environment.</p>
+<h3 id="prometheus-grafana-and-loki-stack">Prometheus, Grafana and Loki stack</h3>
+<img alt="1" src="/images/dash.png" width="1280" height="720"/>
+<p>I&rsquo;m also using Grafana along with the Proxmox PVE exporter, InfluxDB, and Prometheus. Currently, I&rsquo;m using the default Grafana dashboard, but I plan to customize it later. Additionally, I have the Elasticsearch, Fluentbit, and Kibana stack running on my K3s cluster. While it&rsquo;s a bit incomplete at the moment, I&rsquo;m also running the Prometheus operator, node exporter, and other monitoring tools. At present, I have two Grafana instances—one running on a Docker host and another on K3s—but in the future, I plan to consolidate everything and use only one instance. This setup gives me comprehensive monitoring and logging across my infrastructure.</p>
+<h2 id="future-plans">Future Plans</h2>
+<p>At the moment, I don&rsquo;t have any GPUs running in my homelab apart from my workstation PC, which means I can&rsquo;t run any AI/ML workloads. However, I&rsquo;m planning to build a new machine with consumer-grade hardware, which will be my first GPU-enabled setup. This will allow me to experiment with GPU-related tasks and dive into AI/ML workloads. Alongside that, I&rsquo;m also planning to upgrade my storage, moving from SAS drives to SSDs for faster performance. Additionally, I&rsquo;ll be upgrading my network infrastructure by getting a 10GbE switch with SFP, which will significantly increase my network bandwidth and improve overall performance for my homelab. This upgrade will be a huge step forward in optimizing both compute and storage resources.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>My homelab has evolved into a powerful and flexible environment that allows me to experiment with a wide range of technologies, from cloud-native tools and Kubernetes to containerization, networking etc. With a mix of DIY solutions and open-source tools like Traefik, MetalLB, Cloudflare Tunnels, and more, I&rsquo;ve been able to build a robust infrastructure that supports both personal and professional projects. As I continue to grow and upgrade my homelab—adding GPU-enabled machines, SSD storage, and faster networking—I&rsquo;m excited for the new possibilities and optimizations that lie ahead.</p>
+<p>This journey has not only been about building a home lab but also about learning, experimenting, and growing my skills in a hands-on, real-world setting. I look forward to sharing more about my progress and future improvements in upcoming posts.</p>
+<p>I hope this blog post inspires you to start building your own homelab. Whether you&rsquo;re a beginner or looking to enhance your skills, setting up a homelab allows you to experiment with various technologies and gain hands-on experience. Start small, and as you learn and grow, you can gradually expand and upgrade your setup. It&rsquo;s a great way to dive deeper into tech, build a flexible environment, and have fun along the way. Happy building! :)</p>
+
+  </div>
+  
+  <a href="/" class="back-link">← Back to home</a>
+</div>
+
+    </div>
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </body>
+</html>
