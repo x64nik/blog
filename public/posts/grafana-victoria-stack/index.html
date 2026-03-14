@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lightweight Kubernetes Observability with VictoriaMetrics &amp; Grafana | Just A Typical Computer Nerd</title>
+    <meta name="description" content="This guide covers deploying the grafana-victoria-stack Helm chart, combining VictoriaMetrics single-node, Logs, Traces, and Grafana on your K8s cluster for efficient metrics, logging, and tracing." />
+    <meta property="og:title" content="Lightweight Kubernetes Observability with VictoriaMetrics &amp; Grafana | Just A Typical Computer Nerd" />
+    <meta property="og:description" content="This guide covers deploying the grafana-victoria-stack Helm chart, combining VictoriaMetrics single-node, Logs, Traces, and Grafana on your K8s cluster for efficient metrics, logging, and tracing." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:1313/posts/grafana-victoria-stack/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Lightweight Kubernetes Observability with VictoriaMetrics &amp; Grafana | Just A Typical Computer Nerd" />
+    <meta name="twitter:description" content="This guide covers deploying the grafana-victoria-stack Helm chart, combining VictoriaMetrics single-node, Logs, Traces, and Grafana on your K8s cluster for efficient metrics, logging, and tracing." />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #c9d1d9;
+        background-color: #0d1117;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      h1 {
+        font-family: 'Consolas', monospace;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 40px 0;
+        color: #c9d1d9;
+      }
+
+      p {
+        margin: 0 0 20px 0;
+        line-height: 1.7;
+      }
+
+      a {
+        color: #58a6ff;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        color: #79c0ff;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .works-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #c9d1d9;
+      }
+
+      .work-item {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+
+      .work-link {
+        display: block;
+        text-decoration: none;
+        color: #c9d1d9;
+      }
+
+      .work-link:hover {
+        opacity: 0.8;
+      }
+
+      .work-title {
+        font-weight: 500;
+      }
+
+      .publication {
+        color: #58a6ff;
+      }
+
+      .year {
+        color: #8b949e;
+      }
+
+      .description {
+        color: #8b949e;
+        font-style: italic;
+        margin-top: 4px;
+      }
+
+      .contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #30363d;
+      }
+
+      .footer-image {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .footer-image img {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .social-links a {
+        color: #8b949e;
+        transition: color 0.2s ease;
+      }
+
+      .social-links a:hover {
+        color: #58a6ff;
+      }
+
+      .social-links svg {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+      
+       
+      pre {
+        background-color: #161b22;
+        padding: 16px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+      
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      pre code {
+        display: block;
+        white-space: pre !important;
+        word-wrap: normal !important;
+        word-break: normal;
+        overflow-x: auto;
+      }
+      
+       
+      p code, li code, h1 code, h2 code, h3 code {
+        background-color: #161b22;
+        padding: 3px 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+       
+      .post-content mjx-container[display="true"] {
+        display: block;
+        text-align: center;
+        margin: 1em 0;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        min-height: unset;
+      }
+       
+      .post-content mjx-container[display="true"] mjx-math {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: pre;
+        box-sizing: border-box;
+        min-height: unset;
+      }
+       
+      .post-content {
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+      
+       
+      .post-content img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      
+       
+      .post-content img + em {
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        color: #8b949e;
+        margin-top: -1em;
+        margin-bottom: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+  
+  .post-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .post-header {
+    margin-bottom: 40px;
+  }
+  
+  .post-title {
+    font-family: 'Consolas', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #c9d1d9;
+  }
+  
+  .post-date {
+    color: #9d9d9d;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .post-description {
+    font-style: italic;
+    color: #8b949e;
+    margin-bottom: 30px;
+    font-size: 17px;
+  }
+  
+  .post-content {
+    line-height: 1.8;
+    color: #c9d1d9;
+  }
+  
+  .post-content h2 {
+    font-family: 'Consolas', monospace;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 30px 0 20px 0;
+    color: #c9d1d9;
+  }
+  
+  .post-content p {
+    margin-bottom: 20px;
+  }
+  
+  .post-content img {
+    display: block;
+    width: 80%;
+    max-width: 80%;
+    height: auto;
+    margin: 2rem auto;
+    border-radius: 4px;
+  }
+  
+   
+  .post-content img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8b949e;
+    margin-top: -0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .post-content em {
+    color: #8b949e;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  
+  .back-link:hover {
+    color: #79c0ff;
+  }
+</style>
+
+<div class="post-container">
+  <div class="post-header">
+    <h1 class="post-title">Lightweight Kubernetes Observability with VictoriaMetrics &amp; Grafana</h1>
+    <div class="post-date">March 14, 2026</div>
+  </div>
+  
+  <div class="post-content">
+    <h2 id="introduction">Introduction</h2>
+<p>Setting up a Kubernetes cluster in my homelab was just the first step. The real challenge came when I needed to monitor everything running on it—metrics, logs, and traces—without consuming all my server&rsquo;s RAM or dealing with a complex, fragmented setup.</p>
+<p>I wanted a solution that was lightweight, easy to manage via Helm, and capable of handling the full observability stack in a single deployment. That’s how I landed on the Grafana-Victoria Stack. It combines VictoriaMetrics, VictoriaLogs, VictoriaTraces, and Grafana into one cohesive package perfect for home labs or small-scale environments.</p>
+<p>In this post, I’m walking through exactly how I deployed this stack on my cluster. Whether you are looking to save resources or just want a clean way to visualize your homelab data, follow along to see how I made it work.</p>
+<p><img src="/images/grafana-victoria-stack.png" alt="Grafana Victoria Stack Diagram">
+<em>A simple implementation diagram</em></p>
+<h2 id="the-victoria-stack-components">The Victoria Stack Components</h2>
+<p>Before jumping into the deployment, let me quickly run through what each piece of this stack does.</p>
+<h3 id="victoriametrics-single">VictoriaMetrics Single</h3>
+<p>A single-node time series database that acts as a drop-in replacement for Prometheus. It scrapes metrics from your cluster — nodes, pods, deployments, everything — and stores them long term. It exposes a PromQL-compatible API on port <code>8428</code>, so Grafana talks to it exactly like it would talk to Prometheus. Compared to running a full Prometheus setup, it uses significantly less RAM and disk for the same workload, which matters a lot in a homelab.</p>
+<h3 id="victorialogs-single">VictoriaLogs Single</h3>
+<p>The log storage backend. It ingests log streams, indexes them, and serves them over a LogsQL API on port <code>9428</code>. Think of it as a lightweight alternative to Loki — same idea, much lower resource footprint. It stores everything on a single PVC, no object storage required.</p>
+<h3 id="victorialogs-collector">VictoriaLogs Collector</h3>
+<p>This is what actually ships logs from your cluster into VictoriaLogs. It runs as a DaemonSet — one pod per node — tailing container logs from <code>/var/log/containers/</code> and forwarding them to the VictoriaLogs single instance. No need to set up Fluent Bit or Promtail separately, this chart handles it all.</p>
+<h3 id="victoriatraces-single">VictoriaTraces Single</h3>
+<p>The newest addition to the VictoriaMetrics family and still fairly early <code>(v0.0.6)</code>. It stores distributed traces sent via <code>OTLP</code> from your applications and exposes a Jaeger-compatible API so Grafana can query them. If your apps are already instrumented with OpenTelemetry, this just works as the backend. All you need to do is replace the OpenTelemetry collector url with victoriatraces url.</p>
+<h3 id="grafana">Grafana</h3>
+<p>The single pane of glass for all three signal types. In this setup Grafana is configured with three datasources pointing at VictoriaMetrics, VictoriaLogs, and VictoriaTraces respectively — letting you correlate metrics, logs, and traces from one place.</p>
+<hr>
+<h2 id="installing-metrics-server">Installing metrics-server</h2>
+<p>Metrics Server is a small, in-memory component that collects CPU and memory usage from every node&rsquo;s kubelet and exposes it through the Kubernetes Metrics API. It doesn&rsquo;t store anything long-term — it just holds the latest snapshot, which is enough for kubectl top to work and for the Horizontal Pod Autoscaler to make scaling decisions.</p>
+<p>Think of it as your cluster&rsquo;s short-term memory for resource usage. VictoriaMetrics (which we&rsquo;re setting up next) is the long-term memory — it scrapes and stores historical data over time.</p>
+<p>I used Helm to keep things consistent with the rest of my setup:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+</span></span><span style="display:flex;"><span>helm repo update
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>helm upgrade --install metrics-server metrics-server/metrics-server <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --namespace kube-system
+</span></span></code></pre></div><p>The <code>--kubelet-insecure-tls</code> flag is necessary in my homelab because my kubelets use self-signed certificates. If you&rsquo;re in a similar setup, you&rsquo;ll need this too — without it, metrics-server just fails to scrape and sits there doing nothing.</p>
+<p><em>Checking it works</em></p>
+<p>Give it about a minute to run its first scrape cycle, then:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">(</span>⎈|inferno-talos:default<span style="color:#f92672">)</span> ➜  ~ k top nodes
+</span></span><span style="display:flex;"><span>NAME                      CPU<span style="color:#f92672">(</span>cores<span style="color:#f92672">)</span>   CPU<span style="color:#f92672">(</span>%<span style="color:#f92672">)</span>   MEMORY<span style="color:#f92672">(</span>bytes<span style="color:#f92672">)</span>   MEMORY<span style="color:#f92672">(</span>%<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>inferno-talos-cp-01       564m         28%      3005Mi          41%
+</span></span><span style="display:flex;"><span>inferno-talos-worker-01   1208m        20%      6317Mi          40%
+</span></span><span style="display:flex;"><span>inferno-talos-worker-02   1084m        18%      4784Mi          30%
+</span></span><span style="display:flex;"><span>inferno-talos-worker-03   1145m        19%      4249Mi          27%
+</span></span></code></pre></div><p>If you still get <code>error: metrics not available yet</code>, just wait another minute and try again. Once this is showing real numbers, you&rsquo;re good to move on.</p>
+<p><strong>metrics-server docs</strong>: <a href="https://github.com/kubernetes-sigs/metrics-server?tab=readme-ov-file#installation">https://github.com/kubernetes-sigs/metrics-server?tab=readme-ov-file#installation</a></p>
+<hr>
+<h2 id="creating-a-combine-helm-chart">Creating a Combine Helm Chart</h2>
+<p>Rather than managing five separate Helm releases, I bundled everything into a single umbrella chart I called <code>grafana-victoria-stack</code>. This keeps all my observability tooling versioned together and deployable with one command.</p>
+<h3 id="chart-structure">Chart structure</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>grafana-victoria-stack/
+</span></span><span style="display:flex;"><span>├── Chart.yaml                          <span style="color:#75715e"># chart metadata + dependencies</span>
+</span></span><span style="display:flex;"><span>├── charts/                             <span style="color:#75715e"># pulled by helm dependency update</span>
+</span></span><span style="display:flex;"><span>├── dashboards/
+</span></span><span style="display:flex;"><span>│   └── k8s-logs-via-victorialogs.json  <span style="color:#75715e"># pre-built Grafana dashboard</span>
+</span></span><span style="display:flex;"><span>├── templates/
+</span></span><span style="display:flex;"><span>│   └── dashboards
+</span></span><span style="display:flex;"><span>│       └── configmap.yaml              <span style="color:#75715e"># ConfigMaps template for dashboard provisioning</span>
+</span></span><span style="display:flex;"><span>├── external-secrets.yaml               <span style="color:#75715e"># secrets pulled from external store</span>
+</span></span><span style="display:flex;"><span>├── values.yaml                         <span style="color:#75715e"># single config file for everything</span>
+</span></span><span style="display:flex;"><span>└── grafana-victoria-stack-1.0.0.tgz    <span style="color:#75715e"># packaged chart</span>
+</span></span></code></pre></div><p>A few things worth calling out here. The <code>dashboards/</code> directory holds a pre-built Grafana dashboard JSON for Kubernetes logs via VictoriaLogs — more on that when we get to the Grafana setup. The <code>templates/dashboards/</code> folder contains the ConfigMaps that tell Grafana to auto-provision those dashboards on startup, so you don&rsquo;t have to import anything manually. And <code>external-secrets.yaml</code> is how I handle credentials without hardcoding them into <code>values.yaml</code> — I&rsquo;ll cover that separately.</p>
+<h2 id="chartyaml">Chart.yaml</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">description</span>: <span style="color:#e6db74">&#34;A lightweight monitoring stack combining VictoriaMetrics single-node and Grafana, managed via Helm.&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">type</span>: <span style="color:#ae81ff">application</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-victoria-stack</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">version</span>: <span style="color:#ae81ff">1.0.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">appVersion</span>: <span style="color:#ae81ff">v1.0.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">dependencies</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoria-metrics-single</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;0.9.3&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">https://victoriametrics.github.io/helm-charts</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">victoria-metrics-single.enabled</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoria-logs-single</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;0.11.26&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">https://victoriametrics.github.io/helm-charts</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">victoria-logs-single.enabled</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoria-logs-collector</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;0.2.9&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">https://victoriametrics.github.io/helm-charts</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">victoria-logs-collector.enabled</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoria-traces-single</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;0.0.6&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">https://victoriametrics.github.io/helm-charts</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">victoria-traces-single.enabled</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;10.5.5&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">https://grafana.github.io/helm-charts</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">grafana.enabled</span>
+</span></span></code></pre></div><p><em>Five dependencies, all pinned to exact versions. The <code>condition</code> field on each one maps to an <code>enabled</code> flag in <code>values.yaml</code> — flip any of them to <code>false</code> to skip that component entirely during install.</em></p>
+<h3 id="fetching-the-dependencies">Fetching the dependencies</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cd ./grafana-victoria-stack
+</span></span><span style="display:flex;"><span>helm dependency update
+</span></span></code></pre></div><p>This reads your <code>Chart.yaml</code>, pulls all five sub-charts from their respective Helm repos, and drops the <code>.tgz</code> files into the <code>charts/</code> directory. The <code>Chart.lock</code> file gets updated with the exact resolved versions — commit both files so your setup is fully reproducible.</p>
+<h3 id="why-an-umbrella-chart-over-separate-releases">Why an umbrella chart over separate releases</h3>
+<ul>
+<li>Single <code>helm upgrade</code> touches everything at once</li>
+<li>One <code>values.yaml</code> to rule them all</li>
+<li>Flip <code>victoria-traces-single.enabled: false</code> to disable any component without touching the chart</li>
+<li>The whole thing packages into a single <code>.tgz</code> — easy to share or archive</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm package ./grafana-victoria-stack
+</span></span></code></pre></div><blockquote>
+<p><strong>TIP:</strong> You can also use <code>helm package -u .</code> which combines <code>helm dependency update</code> and <code>helm package</code> into a single command — useful when you&rsquo;ve just bumped a dependency version and want to repackage immediately without running two commands.</p>
+</blockquote>
+<h3 id="configuring-valuesyaml">Configuring values.yaml</h3>
+<h3 id="victoriametrics-single-1">VictoriaMetrics Single</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">victoria-metrics-single</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">scrape</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">config</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">global</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">scrape_interval</span>: <span style="color:#ae81ff">15s</span>
+</span></span></code></pre></div><p>Instead of running a separate vmagent or Prometheus, I enabled the built-in scraper directly on VictoriaMetrics. It scrapes every target every 15 seconds. Here&rsquo;s a breakdown of each scrape job.</p>
+<h4 id="self-monitoring">Self-monitoring</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#ae81ff">victoriametrics</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">static_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">targets</span>: [<span style="color:#e6db74">&#34;localhost:8428&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#ae81ff">victoriatraces</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">static_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">targets</span>: [<span style="color:#e6db74">&#34;victoria-traces-single-server:10428&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">metrics_path</span>: <span style="color:#ae81ff">/metrics</span>
+</span></span></code></pre></div><p>VictoriaMetrics and VictoriaTraces both expose their own internal metrics. Scraping them means you can track things like ingestion rate, query latency, and storage usage directly in Grafana.</p>
+<h4 id="kubernetes-api-server">Kubernetes API server</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;kubernetes-apiservers&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kubernetes_sd_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">role</span>: <span style="color:#ae81ff">endpoints</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">https</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tls_config</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ca_file</span>: <span style="color:#ae81ff">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">insecure_skip_verify</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">bearer_token_file</span>: <span style="color:#ae81ff">/var/run/secrets/kubernetes.io/serviceaccount/token</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">source_labels</span>:
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">action</span>: <span style="color:#ae81ff">keep</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">regex</span>: <span style="color:#ae81ff">default;kubernetes;https</span>
+</span></span></code></pre></div><p>This scrapes metrics from the Kubernetes API server itself — request rates, latency, error counts. It uses the pod&rsquo;s mounted service account token to authenticate. The <code>insecure_skip_verify: true</code> is needed on Talos since the API server uses self-signed certs. The <code>relabel_configs</code> filter keeps only the actual API server endpoint and ignores everything else that gets discovered.</p>
+<h4 id="node-metrics">Node metrics</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;kubernetes-nodes&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">https</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tls_config</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">insecure_skip_verify</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">bearer_token_file</span>: <span style="color:#ae81ff">/var/run/secrets/kubernetes.io/serviceaccount/token</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kubernetes_sd_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">role</span>: <span style="color:#ae81ff">node</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">action</span>: <span style="color:#ae81ff">labelmap</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">regex</span>: <span style="color:#ae81ff">__meta_kubernetes_node_label_(.+)</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__address__</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">replacement</span>: <span style="color:#ae81ff">kubernetes.default.svc:443</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__meta_kubernetes_node_name]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__metrics_path__</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">replacement</span>: <span style="color:#ae81ff">/api/v1/nodes/$1/proxy/metrics</span>
+</span></span></code></pre></div><p>Scrapes node-level metrics — CPU, memory, disk, network — from each node&rsquo;s kubelet via the Kubernetes API proxy. The relabel rules here are doing something important: instead of hitting each kubelet directly (which would require node-level network access), all requests are routed through <code>kubernetes.default.svc:443</code> and proxied to the right node. This works cleanly on Talos without needing to open extra ports.</p>
+<h4 id="cadvisor-container-metrics">cAdvisor (container metrics)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;kubernetes-nodes-cadvisor&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">https</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tls_config</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">insecure_skip_verify</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">bearer_token_file</span>: <span style="color:#ae81ff">/var/run/secrets/kubernetes.io/serviceaccount/token</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kubernetes_sd_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">role</span>: <span style="color:#ae81ff">node</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__address__</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">replacement</span>: <span style="color:#ae81ff">kubernetes.default.svc:443</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__meta_kubernetes_node_name]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__metrics_path__</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">replacement</span>: <span style="color:#ae81ff">/api/v1/nodes/$1/proxy/metrics/cadvisor</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">metric_relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">action</span>: <span style="color:#ae81ff">replace</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">pod]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">pod_name</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">action</span>: <span style="color:#ae81ff">replace</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">container]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">container_name</span>
+</span></span></code></pre></div><p>cAdvisor runs inside the kubelet and exposes per-container resource usage — CPU throttling, memory working set, network I/O per pod. Same API proxy trick as above, just a different path (<code>/metrics/cadvisor</code>). The <code>metric_relabel_configs</code> at the bottom rename <code>pod</code> → <code>pod_name</code> and <code>container</code> → <code>container_name</code> to make the labels consistent with what the Kubernetes Grafana dashboards expect.</p>
+<h4 id="homelab-specific-targets">Homelab-specific targets</h4>
+<p>These are the scrape jobs specific to what I&rsquo;m running in my homelab:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;rook-ceph-exporter&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kubernetes_sd_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">role</span>: <span style="color:#ae81ff">endpoints</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">namespaces</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">names</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">rook-ceph</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__meta_kubernetes_service_name]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">action</span>: <span style="color:#ae81ff">keep</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">regex</span>: <span style="color:#ae81ff">rook-ceph-exporter</span>
+</span></span></code></pre></div><p>Rook-Ceph exposes storage cluster metrics — OSD status, pool usage, I/O throughput. The namespace-scoped service discovery means it only looks inside the <code>rook-ceph</code> namespace instead of scanning the whole cluster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;qdrant&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kubernetes_sd_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">role</span>: <span style="color:#ae81ff">endpoints</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">namespaces</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">names</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">qdrant</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">relabel_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__meta_kubernetes_service_name]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">action</span>: <span style="color:#ae81ff">keep</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">regex</span>: <span style="color:#ae81ff">qdrant</span>
+</span></span></code></pre></div><p>Qdrant is a vector database I run on the cluster. It exposes collection sizes, query latency, and memory usage — useful to track when running embedding workloads.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#34;ultron-nvidia-dcgm-exporter&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">static_configs</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">targets</span>: [<span style="color:#e6db74">&#34;192.168.0.160:9835&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">metrics_path</span>: <span style="color:#ae81ff">/metrics</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">http</span>
+</span></span></code></pre></div><p>This one is outside the cluster entirely. I have a machine with an Nvidia GPU running the DCGM exporter as a container, and I scrape it directly via its static IP on my home network. Gives me GPU utilization, memory usage, and temperature in Grafana.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">limits</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">300m</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">1G</span>
+</span></span></code></pre></div><p>Resource limits are intentionally conservative. With all these scrape jobs running every 15 seconds, VictoriaMetrics sits comfortably under 300m CPU and 600Mi memory on my cluster — the 1G limit gives it headroom during query spikes.</p>
+<hr>
+<h3 id="victorialogs-single-1">VictoriaLogs Single</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">victoria-logs-single</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">retentionDiskSpaceUsage</span>: <span style="color:#ae81ff">5GB</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">persistentVolume</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">accessModes</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">ReadWriteOnce</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">storageClassName</span>: <span style="color:#e6db74">&#34;ceph-block&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">size</span>: <span style="color:#ae81ff">10Gi</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">limits</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">300m</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">512Mi</span>
+</span></span></code></pre></div><p>Pretty straightforward config. A 10Gi PVC backed by Ceph for storage, and <code>retentionDiskSpaceUsage: 5GB</code> as a hard cap — once log data hits 5GB on disk, VictoriaLogs starts dropping the oldest data to stay under the limit. This is a nice safety net so it never silently fills up the volume.</p>
+<p>Resource limits are very light here — 300m CPU and 512Mi memory. In my experience VictoriaLogs sits well under both even with logs flowing in from all four nodes continuously.</p>
+<h3 id="victorialogs-collector-1">VictoriaLogs Collector</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">victoria-logs-collector</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">remoteWrite</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">url</span>: <span style="color:#ae81ff">http://victoria-logs-single-server:9428</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">limits</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">100m</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">128Mi</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">100m</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">128Mi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tolerations</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">key</span>: <span style="color:#e6db74">&#34;node-role.kubernetes.io/control-plane&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">operator</span>: <span style="color:#e6db74">&#34;Exists&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">effect</span>: <span style="color:#e6db74">&#34;NoSchedule&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">nodeSelector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">kubernetes.io/os</span>: <span style="color:#ae81ff">linux</span>
+</span></span></code></pre></div><p>The collector runs as a DaemonSet so there&rsquo;s one instance on every node. The <code>remoteWrite</code> URL points at the VictoriaLogs single service using its in-cluster DNS name — this is the only config needed to wire the two together.</p>
+<p>The <code>tolerations</code> block is the part that caught me out initially. By default Kubernetes won&rsquo;t schedule pods on control plane nodes due to the <code>NoSchedule</code> taint. Without this toleration the DaemonSet skips your control plane entirely, which means you lose logs from <code>kube-apiserver</code>, <code>etcd</code>, and any other control plane components. On my Talos cluster that&rsquo;s <code>inferno-talos-cp-01</code> — adding the toleration ensures the collector runs there too.</p>
+<p>The <code>nodeSelector</code> keeps it scoped to Linux nodes only, which on a Talos cluster is always the case but good practice to have explicitly.</p>
+<hr>
+<h3 id="victoriatraces-single-1">VictoriaTraces Single</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">victoria-traces-single</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">persistentVolume</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">accessModes</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">ReadWriteOnce</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">storageClassName</span>: <span style="color:#e6db74">&#34;ceph-block&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">size</span>: <span style="color:#ae81ff">10Gi</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">limits</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">200m</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">512Mi</span>
+</span></span></code></pre></div><p>The config here is minimal compared to the other components — and intentionally so. VictoriaTraces is still at <code>v0.0.6</code> so I kept the setup as simple as possible: a 10Gi Ceph-backed PVC and conservative resource limits.</p>
+<p>Out of the box it listens on two ports — <code>4318</code> for OTLP/HTTP and <code>10428</code> for its internal API (which is also what Grafana queries via the Jaeger-compatible endpoint). No extra config needed to get those working.</p>
+<p>To actually get traces into it, your applications need to be instrumented with the OpenTelemetry SDK and pointed at <code>victoria-traces-single-server.monitoring.svc.cluster.local:4318</code>. Here&rsquo;s a minimal example for a Python app:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.sdk.trace.export <span style="color:#f92672">import</span> BatchSpanProcessor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.exporter.otlp.proto.http.trace_exporter <span style="color:#f92672">import</span> OTLPSpanExporter
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>exporter <span style="color:#f92672">=</span> OTLPSpanExporter(
+</span></span><span style="display:flex;"><span>    endpoint<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http://victoria-traces-single-server.monitoring.svc.cluster.local:4318&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>Or if you&rsquo;re using the OpenTelemetry Collector as an intermediary, just point its OTLP exporter at the same endpoint.</p>
+<blockquote>
+<p><strong>Note:</strong> VictoriaTraces is still very early in development. I&rsquo;m using it in my homelab because the resource footprint is tiny and it integrates cleanly with the rest of the Victoria stack, but I wouldn&rsquo;t lean on it heavily for anything critical just yet.</p>
+</blockquote>
+<hr>
+<h3 id="grafana-1">Grafana</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">grafana</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">admin</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">existingSecret</span>: <span style="color:#e6db74">&#34;grafana-admin-secret&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">userKey</span>: <span style="color:#ae81ff">admin-user</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">passwordKey</span>: <span style="color:#ae81ff">admin-password</span>
+</span></span></code></pre></div><p>Instead of hardcoding Grafana credentials in values.yaml, I&rsquo;m pulling them from an ExternalSecret. The <code>external-secrets.yaml</code> in the chart root defines where to fetch them from:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Secret</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-admin-secret</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">monitoring</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">type</span>: <span style="color:#ae81ff">Opaque</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">stringData</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">admin-user</span>: <span style="color:#ae81ff">foo</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">admin-password</span>: <span style="color:#ae81ff">bar</span>
+</span></span></code></pre></div><h4 id="datasources">Datasources</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#f92672">datasources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">datasources.yaml</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">datasources</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoriametrics</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">type</span>: <span style="color:#ae81ff">prometheus</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">url</span>: <span style="color:#ae81ff">http://victoria-metrics-single-server.monitoring.svc.cluster.local:8428</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">isDefault</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victorialogs</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">type</span>: <span style="color:#ae81ff">victoriametrics-logs-datasource</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">url</span>: <span style="color:#ae81ff">http://victoria-logs-single-server.monitoring.svc.cluster.local:9428</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">victoriatraces</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">type</span>: <span style="color:#ae81ff">jaeger</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">url</span>: <span style="color:#ae81ff">http://victoria-traces-single-server.monitoring.svc.cluster.local:10428/select/jaeger</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">jsonData</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">tracesToLogsV2</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">datasourceUid</span>: <span style="color:#e6db74">&#39;victorialogs&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">tracesToMetrics</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">datasourceUid</span>: <span style="color:#e6db74">&#39;victoriametrics&#39;</span>
+</span></span></code></pre></div><p>Three datasources, all using full cluster-local DNS names. VictoriaMetrics is set as the default since most dashboards are metric-based. The <code>tracesToLogsV2</code> and <code>tracesToMetrics</code> fields under the Jaeger datasource are what enable correlation in Grafana — from a trace you can jump directly to the related logs or metrics without leaving the UI.</p>
+<h4 id="the-victorialogs-datasource-plugin">The VictoriaLogs datasource plugin</h4>
+<p>The <code>victorialogs</code> datasource uses <code>type: victoriametrics-logs-datasource</code> which is not a built-in Grafana datasource. It&rsquo;s a community plugin maintained by VictoriaMetrics that adds LogsQL support to Grafana&rsquo;s Explore page and panels. Without it, Grafana has no way to talk to VictoriaLogs.</p>
+<p>To install it, add it to the <code>plugins</code> list in your values:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#f92672">plugins</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">victoriametrics-logs-datasource</span>
+</span></span></code></pre></div><p>This tells the Grafana Helm chart to install the plugin at container startup via <code>GF_INSTALL_PLUGINS</code> — no manual downloading or image rebuilding needed. Once it&rsquo;s installed, the <code>victoriametrics-logs-datasource</code> type becomes available for datasource provisioning.</p>
+<blockquote>
+<p><strong>Note:</strong> The plugin requires network access at pod startup to download from the Grafana plugin registry. If your cluster has strict egress policies, you may need to allow outbound traffic to <code>grafana.com</code> or use the init container approach described in the <a href="https://github.com/VictoriaMetrics/victorialogs-datasource">plugin docs</a>.</p>
+</blockquote>
+<h4 id="dashboards">Dashboards</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#f92672">dashboards</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">default</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">victoriametrics</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">gnetId</span>: <span style="color:#ae81ff">10229</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">revision</span>: <span style="color:#ae81ff">48</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">datasource</span>: <span style="color:#ae81ff">victoriametrics</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">kubernetes</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">gnetId</span>: <span style="color:#ae81ff">14205</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">revision</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">datasource</span>: <span style="color:#ae81ff">victoriametrics</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">nvidia-gpu-metrics</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">gnetId</span>: <span style="color:#ae81ff">14574</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">revision</span>: <span style="color:#ae81ff">11</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">datasource</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">DS_PROMETHEUS</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">value</span>: <span style="color:#ae81ff">victoriametrics</span>
+</span></span></code></pre></div><p>Three dashboards auto-provisioned from Grafana.com by <code>gnetId</code> — no manual importing needed. They load on first startup and are ready to use immediately.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Dashboard</th>
+          <th>gnetId</th>
+          <th>Purpose</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>VictoriaMetrics</td>
+          <td>10229</td>
+          <td>VM internals, ingestion rate, query stats</td>
+      </tr>
+      <tr>
+          <td>Kubernetes</td>
+          <td>14205</td>
+          <td>Cluster-wide resource overview</td>
+      </tr>
+      <tr>
+          <td>Nvidia GPU</td>
+          <td>14574</td>
+          <td>GPU utilization via DCGM exporter</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="sidecar-dashboards">Sidecar dashboards</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#f92672">sidecar</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">dashboards</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">label</span>: <span style="color:#ae81ff">grafana_dashboard</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labelValue</span>: <span style="color:#e6db74">&#34;1&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">folder</span>: <span style="color:#ae81ff">/tmp/dashboards</span>
+</span></span></code></pre></div><p>This enables the Grafana sidecar — a container that runs alongside Grafana and watches for ConfigMaps with the label <code>grafana_dashboard: &quot;1&quot;</code> across the cluster. When it finds one, it automatically loads the JSON inside as a dashboard without any restart or manual import needed.</p>
+<p>This is how I provision the custom <code>k8s-logs-via-victorialogs</code> dashboard that lives in my <code>dashboards/</code> folder. The template in <code>templates/dashboards/</code> wraps the JSON in a ConfigMap with the right label:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># templates/dashboards/k8s-logs-dashboard.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ConfigMap</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">k8s-logs-via-victorialogs</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">monitoring</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">grafana_dashboard</span>: <span style="color:#e6db74">&#34;1&#34;</span>   <span style="color:#75715e"># &lt;-- sidecar watches for this</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">data</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">k8s-logs-via-victorialogs.json</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    { ... dashboard JSON ... }</span>
+</span></span></code></pre></div><p>The sidecar picks this up automatically and places it in <code>/tmp/dashboards</code> inside the Grafana container. Any ConfigMap in the cluster with that label gets treated the same way — so if you want to add more custom dashboards later, just create a ConfigMap with <code>grafana_dashboard: &quot;1&quot;</code> and the sidecar handles the rest.</p>
+<hr>
+<h2 id="deploying-the-stack">Deploying the Stack</h2>
+<p>With the chart structure in place and <code>values.yaml</code> configured, deploying the entire stack is a single command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm upgrade --install grafana-victoria-stack . <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --namespace monitoring <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --create-namespace <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --values values.yaml
+</span></span></code></pre></div><p><code>--create-namespace</code> handles creating the <code>monitoring</code> namespace if it doesn&rsquo;t exist yet. The <code>.</code> tells Helm to use the local chart directory — since we already ran <code>helm dependency update</code> the <code>charts/</code> folder is populated and ready.</p>
+<p>You should see output like:</p>
+<pre tabindex="0"><code>Release &#34;grafana-victoria-stack&#34; has been upgraded. Happy Helming!
+NAME: grafana-victoria-stack
+LAST DEPLOYED: Fri Mar 14 00:00:00 2026
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 1
+</code></pre><h3 id="verifying-the-deployment">Verifying the deployment</h3>
+<p>Give it a minute for all pods to come up, then check:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">(</span>⎈|inferno-talos:default<span style="color:#f92672">)</span> ➜  ~ k get pods -n monitoring
+</span></span><span style="display:flex;"><span>NAME                               READY   STATUS    RESTARTS       AGE
+</span></span><span style="display:flex;"><span>grafana-5f96686f5c-wgc69           2/2     Running   <span style="color:#ae81ff">11</span> <span style="color:#f92672">(</span>11h ago<span style="color:#f92672">)</span>   20h
+</span></span><span style="display:flex;"><span>victoria-logs-collector-5wv5w      1/1     Running   <span style="color:#ae81ff">8</span>              7d22h
+</span></span><span style="display:flex;"><span>victoria-logs-collector-dk6nz      1/1     Running   <span style="color:#ae81ff">0</span>              11h
+</span></span><span style="display:flex;"><span>victoria-logs-collector-nx665      1/1     Running   <span style="color:#ae81ff">24</span> <span style="color:#f92672">(</span>20h ago<span style="color:#f92672">)</span>   26d
+</span></span><span style="display:flex;"><span>victoria-logs-collector-tkmqd      1/1     Running   <span style="color:#ae81ff">23</span> <span style="color:#f92672">(</span>20h ago<span style="color:#f92672">)</span>   26d
+</span></span><span style="display:flex;"><span>victoria-logs-single-server-0      1/1     Running   <span style="color:#ae81ff">0</span>              11h
+</span></span><span style="display:flex;"><span>victoria-metrics-single-server-0   1/1     Running   <span style="color:#ae81ff">0</span>              11h
+</span></span><span style="display:flex;"><span>victoria-traces-single-server-0    1/1     Running   <span style="color:#ae81ff">0</span>              11h
+</span></span></code></pre></div><p>A few things to note here. The <code>victoria-logs-collector</code> shows four pods — one per node in my cluster, which is exactly what we want from the DaemonSet. The three Victoria storage components run as single replicas, each backed by their own PVC.</p>
+<p>Check that the PVCs are all bound:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">(</span>⎈|inferno-talos:default<span style="color:#f92672">)</span> ➜  ~ k get pvc -n monitoring
+</span></span><span style="display:flex;"><span>NAME                                                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+</span></span><span style="display:flex;"><span>server-volume-grafana-victoria-stack-victoria-metrics-single-server-0   Bound    pvc-0e837872-51cb-4f67-8bc9-83cb1132e1cc   16Gi       RWO            ceph-block     &lt;unset&gt;                 60d
+</span></span><span style="display:flex;"><span>server-volume-victoria-logs-single-server-0                             Bound    pvc-603298b9-4369-4157-a637-b5ba96716212   10Gi       RWO            ceph-block     &lt;unset&gt;                 36d
+</span></span><span style="display:flex;"><span>server-volume-victoria-metrics-single-0                                 Bound    pvc-dfe558d8-3a12-45e1-9a27-edc375be1435   16Gi       RWO            ceph-block     &lt;unset&gt;                 60d
+</span></span><span style="display:flex;"><span>server-volume-victoria-metrics-single-server-0                          Bound    pvc-edbfc0b9-5d9d-468b-b41e-0c91c7682853   16Gi       RWO            ceph-block     &lt;unset&gt;                 60d
+</span></span><span style="display:flex;"><span>server-volume-victoria-traces-single-server-0                           Bound    pvc-86ae364d-3a0a-4cdc-8d9f-8a03bd6ab309   10Gi       RWO            ceph-block     &lt;unset&gt;                 36d
+</span></span></code></pre></div><p>If any PVC is stuck in <code>Pending</code>, it usually means the storage class isn&rsquo;t available — worth checking <code>kubectl describe pvc &lt;name&gt; -n monitoring</code> for the exact reason.</p>
+<h3 id="quick-sanity-checks">Quick sanity checks</h3>
+<p>Verify VictoriaMetrics is scraping targets:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl port-forward svc/victoria-metrics-single-server 8428:8428 -n monitoring
+</span></span></code></pre></div><p><img src="/images/victoria-metrics-targets.png" alt="Victoria Metrics Targets">
+<em>Open <code>http://localhost:8428/targets</code> in your browser. You should see all your scrape jobs listed with a green <code>UP</code> status.</em></p>
+<p>For VictoriaLogs, check that logs are flowing in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl port-forward svc/victoria-logs-single-server 9428:9428 -n monitoring
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl http://localhost:9428/select/logsql/query <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --data-urlencode <span style="color:#e6db74">&#39;query=*&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --data-urlencode <span style="color:#e6db74">&#39;start=5m&#39;</span>
+</span></span></code></pre></div><p>If you&rsquo;re getting log lines back, the collector is shipping logs successfully.</p>
+<h3 id="accessing-grafana">Accessing Grafana</h3>
+<p>Since I&rsquo;m running a Gateway API route on my cluster, Grafana is accessible at <code>https://grafana.home.rushidarunte.com</code> — configured via the <code>route</code> block in values. If you&rsquo;re not using Gateway API or any Ingress Controller, you can quickly access it via port-forward:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl port-forward svc/grafana 3000:80 -n monitoring
+</span></span></code></pre></div><p>Then open <code>http://localhost:3000</code> and log in with the credentials from your <code>grafana-admin-secret</code>. Head to <strong>Connections → Data sources</strong> and you should see all three datasources — VictoriaMetrics, VictoriaLogs, and VictoriaTraces — already provisioned and ready to use.</p>
+<p><img src="/images/grafana-datasources.png" alt="Grafana Datasources"></p>
+<hr>
+<h3 id="dashboards-1">Dashboards</h3>
+<h4 id="kubernetes-logs-via-victorialogs">Kubernetes Logs via VictoriaLogs</h4>
+<p>One of the most useful dashboards in my setup is the Kubernetes logs dashboard, built with the VictoriaLogs plugin. I imported it directly from the VictoriaMetrics <a href="https://play-grafana.victoriametrics.com/d/be5zidev72m80f">demo dashboard</a> — the JSON lives in my <code>dashboards/</code> folder and gets provisioned automatically via the sidecar ConfigMap we covered earlier.</p>
+<p><img src="/images/grafana-pod-logs-dashboard.png" alt="Kubernetes Logs Dashboard">
+<em>Kubernetes logs dashboard powered by VictoriaLogs and LogsQL</em></p>
+<p>It gives you a clean view of logs across the entire cluster — filterable by namespace, pod, and container. The LogsQL query bar at the top lets you search across all your logs the same way you&rsquo;d use Grafana Explore, but with a pre-built layout that&rsquo;s immediately useful without any configuration.</p>
+<p>If you want to use the same dashboard, grab the JSON directly from the <a href="https://play-grafana.victoriametrics.com/d/be5zidev72m80f">VictoriaMetrics demo</a> or the <a href="https://github.com/VictoriaMetrics/victorialogs-datasource">victorialogs-datasource repo</a> and drop it into your <code>dashboards/</code> folder. The sidecar will pick it up on the next sync.</p>
+<hr>
+<h4 id="node-monitoring">Node Monitoring</h4>
+<p>The Kubernetes cluster overview dashboard gives me a quick glance at resource usage across all four nodes — CPU, memory, disk I/O, and network. This is the first thing I check when something feels slow on the cluster.</p>
+<p><img src="/images/node-monitoring-dashboard.png" alt="Node Monitoring Dashboard">
+<em>Per-node CPU and memory usage across the Talos cluster</em></p>
+<h4 id="nvidia-gpu--llm-monitoring">Nvidia GPU — LLM Monitoring</h4>
+<p>This one is specific to my homelab setup. I run a few LLM models locally using llama-cpp, and the Nvidia DCGM dashboard is how I keep an eye on GPU utilization and VRAM consumption while models are loading or actively serving requests. When a model is being loaded into VRAM you can see a sharp spike on the memory graph, and during inference the GPU utilization climbs steadily depending on the request load.</p>
+<p><img src="/images/nvidia-dcgm-dashboard.png" alt="Nvidia DCGM Dashboard">
+<em>VRAM consumption and GPU utilization during LLM inference</em></p>
+<p>Having this wired into the same Grafana instance as the rest of the cluster means I can correlate GPU pressure with pod-level metrics — useful when multiple workloads are competing for resources.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<p>That&rsquo;s the full observability stack running on my Talos homelab cluster — metrics, logs, and traces all flowing into a single Grafana instance, deployed and managed through one Helm chart. The whole thing sits comfortably within the resource limits I set, leaving plenty of headroom for the actual workloads running on the cluster.</p>
+<p>The biggest win for me was collapsing what would normally be five or six separate Helm releases, multiple config files, and a lot of manual Grafana setup into a single <code>helm upgrade --install</code> command. If I need to rebuild the cluster or spin up a second environment, it&rsquo;s fully reproducible from the chart and <code>values.yaml</code> alone.</p>
+<p>There are still a few rough edges — VictoriaTraces is very early and I wouldn&rsquo;t rely on it for anything critical yet, and the current setup still requires some manual steps in Grafana for things like alert rules and additional dashboard configuration.</p>
+<h3 id="whats-next">What&rsquo;s Next</h3>
+<p>In the next post I&rsquo;ll go through making the entire Grafana setup fully declarative — managing dashboards, alert rules, and data source configuration through ConfigMaps and Kubernetes-native resources, so nothing requires manual clicking in the UI. If you&rsquo;ve ever had Grafana lose its configuration after a pod restart, that post is for you.</p>
+<hr>
+<h2 id="source">Source</h2>
+<p>The full Helm chart for this stack is available on my GitHub. Feel free to use it as a starting point for your own homelab setup.</p>
+<p><strong>grafana-victoria-stack</strong>: <a href="https://github.com/x64nik/homelab/tree/main/kubernetes/helm-charts/grafana-victoria-stack">https://github.com/x64nik/homelab/tree/main/kubernetes/helm-charts/grafana-victoria-stack</a></p>
+<hr>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://docs.victoriametrics.com/helm/victoria-metrics-single/">VictoriaMetrics Helm charts</a></li>
+<li><a href="https://docs.victoriametrics.com/helm/victoria-logs-single/">VictoriaLogs documentation</a></li>
+<li><a href="https://github.com/VictoriaMetrics/victorialogs-datasource">VictoriaLogs Grafana datasource plugin</a></li>
+<li><a href="https://play-grafana.victoriametrics.com/d/be5zidev72m80f">VictoriaLogs demo dashboard</a></li>
+<li><a href="https://github.com/kubernetes-sigs/metrics-server">metrics-server</a></li>
+<li><a href="https://github.com/utkuozdemir/nvidia_gpu_exporter">Nvidia DCGM exporter</a></li>
+</ul>
+
+  </div>
+  
+  <a href="/" class="back-link">← Back to home</a>
+</div>
+
+    </div>
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </body>
+</html>

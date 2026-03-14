@@ -6,8 +6,15 @@
     <description>Recent content on Just A Typical Computer Nerd</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Oct 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 14 Mar 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Lightweight Kubernetes Observability with VictoriaMetrics &amp; Grafana</title>
+      <link>http://localhost:1313/posts/grafana-victoria-stack/</link>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/grafana-victoria-stack/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;Setting up a Kubernetes cluster in my homelab was just the first step. The real challenge came when I needed to monitor everything running on it—metrics, logs, and traces—without consuming all my server&amp;rsquo;s RAM or dealing with a complex, fragmented setup.&lt;/p&gt;&#xA;&lt;p&gt;I wanted a solution that was lightweight, easy to manage via Helm, and capable of handling the full observability stack in a single deployment. That’s how I landed on the Grafana-Victoria Stack. It combines VictoriaMetrics, VictoriaLogs, VictoriaTraces, and Grafana into one cohesive package perfect for home labs or small-scale environments.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Implementing GitOps Preview Environments with ArgoCD on EKS</title>
       <link>http://localhost:1313/posts/argocd-pr-deployments/</link>
@@ -41,7 +48,7 @@
       <link>http://localhost:1313/_about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/_about/</guid>
-      <description>&lt;h2 id=&#34;just-a-typical-computer-nerd&#34;&gt;Just A Typical Computer Nerd&lt;/h2&gt;&#xA;&lt;p&gt;Hi! I&amp;rsquo;m Rushi, a DevOps Engineer, homelab enthusiast, and part-time software developer a full-fledged nerd. I primarily work with on-premises and cloud infrastructure, diving deep into systems and tools that enable scalable and efficient deployments.I also run a homelab where I host numerous services, providing a playground for experimenting with DevOps and SRE-related work. One of my ongoing projects, ConfigCloud, is a self-hosted VPS platform running on this homelab. When I&amp;rsquo;m not busy with office work, you&amp;rsquo;ll most likely find me tinkering with infrastructure, writing code, or exploring new ideas in my homelab.&lt;/p&gt;</description>
+      <description>&lt;h2 id=&#34;just-a-typical-computer-nerd-&#34;&gt;Just A Typical Computer Nerd :)&lt;/h2&gt;&#xA;&lt;p&gt;Hi! I&amp;rsquo;m Rushi, a DevOps Engineer, homelab enthusiast, and part-time software developer a full-fledged nerd. I primarily work with on-premises and cloud infrastructure, diving deep into systems and tools that enable scalable and efficient deployments.I also run a homelab where I host numerous services, providing a playground for experimenting with DevOps and SRE-related work. One of my ongoing projects, ConfigCloud, is a self-hosted VPS platform running on this homelab. When I&amp;rsquo;m not busy with office work, you&amp;rsquo;ll most likely find me tinkering with infrastructure, writing code, or exploring new ideas in my homelab.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

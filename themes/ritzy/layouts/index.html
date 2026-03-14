@@ -44,7 +44,7 @@
     </div>    
     
     <div class="section">
-      <div class="works-title">Writing</div>
+      <div class="works-title">Writings</div>
 
       {{ $featured := where (where .Site.RegularPages "Section" "posts") "Params.featured" true }}
       {{ range first 4 (sort $featured "Date" "desc") }}
