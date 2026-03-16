@@ -344,7 +344,7 @@
 <p>Setting up a Kubernetes cluster in my homelab was just the first step. The real challenge came when I needed to monitor everything running on it—metrics, logs, and traces—without consuming all my server&rsquo;s RAM or dealing with a complex, fragmented setup.</p>
 <p>I wanted a solution that was lightweight, easy to manage via Helm, and capable of handling the full observability stack in a single deployment. That’s how I landed on the Grafana-Victoria Stack. It combines VictoriaMetrics, VictoriaLogs, VictoriaTraces, and Grafana into one cohesive package perfect for home labs or small-scale environments.</p>
 <p>In this post, I’m walking through exactly how I deployed this stack on my cluster. Whether you are looking to save resources or just want a clean way to visualize your homelab data, follow along to see how I made it work.</p>
-<p><img src="/images/grafana-victoria-stack.png" alt="Grafana Victoria Stack Diagram">
+<p><img src="/images/grafana-victoria-stack-arch.png" alt="Grafana Victoria Stack Diagram">
 <em>A simple implementation diagram</em></p>
 <h2 id="the-victoria-stack-components">The Victoria Stack Components</h2>
 <p>Before jumping into the deployment, let me quickly run through what each piece of this stack does.</p>

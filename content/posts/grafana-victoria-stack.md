@@ -13,7 +13,7 @@ I wanted a solution that was lightweight, easy to manage via Helm, and capable o
 
 In this post, I’m walking through exactly how I deployed this stack on my cluster. Whether you are looking to save resources or just want a clean way to visualize your homelab data, follow along to see how I made it work.
 
-![Grafana Victoria Stack Diagram](/images/grafana-victoria-stack.png)
+![Grafana Victoria Stack Diagram](/images/grafana-victoria-stack-arch.png)
 *A simple implementation diagram*
 
 
