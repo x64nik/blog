@@ -1,0 +1,145 @@
+{{ define "main" }}
+<style>
+  body {
+    font-family: 'Consolas', monospace;
+  }
+
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto; /* Center the container horizontally */
+    max-width: 960px; /* Set to the same as content max-width for readability */
+    padding: 0 20px; /* Keep padding to prevent content from touching the edge */
+  }
+
+  .content-column {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: auto;
+    max-width: 960px; /* Maximum width for readability */
+    font-size: 15px;
+  }
+
+  @media (max-width: 992px) {
+    .page-container {
+      flex-direction: column;
+    }
+
+    .content-column {
+      width: 100%;
+      padding-right: 0;
+      min-width: auto; /* Remove min-width on smaller screens */
+      max-width: 960px; /* Keep the maximum width for readability */
+      margin: 0 auto; /* Center on mobile */
+    }
+  }
+
+  .section-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #58a6ff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .now-link {
+    display: block;
+    text-decoration: none;
+    color: #c9d1d9;
+  }
+
+  .now-link:hover {
+    opacity: 0.8;
+  }
+
+  .now-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #c9d1d9;
+    text-decoration: none;
+  }
+
+  .now-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #3fb950;
+    box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.6);
+    animation: now-pulse 1.5s infinite;
+  }
+
+  @keyframes now-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.5); }
+    70% { box-shadow: 0 0 0 6px rgba(63, 185, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+  }
+
+  .now-text {
+    color: #8b949e;
+    font-style: italic;
+    margin-top: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+
+<div class="page-container">
+  <div class="content-column">
+    <div class="section">
+      {{ with .Site.GetPage "_about" }}
+        {{ .Content }}
+      {{ end }}
+    </div>
+
+    {{ with .Site.GetPage "/now" }}
+    {{ $paras := split (trim .RawContent "\n") "\n\n" }}
+    {{ $glimpse := "" }}
+    {{ range $paras }}
+      {{ $p := trim . " \n\t" }}
+      {{ if and (eq $glimpse "") (ne $p "") (not (strings.HasPrefix $p "<")) }}
+        {{ $glimpse = $p }}
+      {{ end }}
+    {{ end }}
+    {{ $glimpse = $glimpse | markdownify | plainify }}
+    <div class="section">
+      <a href="{{ .RelPermalink }}" class="now-link">
+        <span class="now-label">
+          <span class="now-dot"></span>
+          Now
+        </span>
+        <div class="now-text">{{ $glimpse }}</div>
+      </a>
+    </div>
+    {{ end }}
+
+    <div class="section">
+      <div class="works-title">Writings</div>
+
+      {{ $featured := where (where .Site.RegularPages "Section" "posts") "Params.featured" true }}
+      {{ range first 4 (sort $featured "Date" "desc") }}
+      <div class="work-item">
+        <a href="{{ .RelPermalink }}" class="work-link">
+          <span class="work-title">{{ .Title }}</span>
+          <span class="year">({{ if .Params.originalYear }}{{ .Params.originalYear }}{{ else }}{{ .Date.Format "2006" }}{{ end }})</span>
+          <div class="description">{{ .Description }}</div>
+        </a>
+      </div>
+      {{ end }}
+
+      <a href="/posts" class="section-link">All blogs →</a>
+    </div>
+
+    <div class="contact">
+        {{ with .Site.GetPage "_contact" }}
+          {{ .Content }}
+        {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}
