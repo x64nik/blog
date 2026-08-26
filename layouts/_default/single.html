@@ -121,6 +121,43 @@
     text-decoration: underline;
   }
 
+  .image-wall {
+    column-count: 3;
+    column-gap: 8px;
+    margin: 10px 0 30px 0;
+  }
+
+  .image-tile {
+    display: block;
+    break-inside: avoid;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .image-tile img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.2s ease;
+  }
+
+  .image-tile:hover img {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 700px) {
+    .image-wall {
+      column-count: 2;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .image-wall {
+      column-count: 1;
+    }
+  }
+
   .back-link {
     display: inline-block;
     margin-top: 50px;
@@ -142,9 +179,28 @@
     <div class="post-date">{{ .Date.Format "January 2, 2006" }}</div>
   </div>
 
+  {{ $gallery := "<!--gallery-->" }}
+  {{ $parts := split .RawContent $gallery }}
+
   <div class="post-content">
-    {{ .Content }}
+    {{ index $parts 0 | markdownify }}
   </div>
+
+  {{ with .Params.images }}
+  <div class="image-wall">
+    {{ range . }}
+    <a href="{{ . | relURL }}" target="_blank" rel="noopener noreferrer" class="image-tile">
+      <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy">
+    </a>
+    {{ end }}
+  </div>
+  {{ end }}
+
+  {{ if gt (len $parts) 1 }}
+  <div class="post-content">
+    {{ index $parts 1 | markdownify }}
+  </div>
+  {{ end }}
 
   <a href="{{ "/" | relURL }}" class="back-link">← Back to home</a>
 </div>

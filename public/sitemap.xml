@@ -1,1 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>https://rushidarunte.com/</loc><lastmod>2026-07-16T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/now/</loc><lastmod>2026-07-16T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/posts/grafana-victoria-stack/</loc><lastmod>2026-03-14T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/posts/</loc><lastmod>2026-03-14T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/posts/argocd-pr-deployments/</loc><lastmod>2025-10-11T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/_contact/</loc><lastmod>2025-06-17T00:00:00+00:00</lastmod></url><url><loc>https://rushidarunte.com/posts/homelab-overview/</loc><lastmod>2024-01-27T00:00:00+05:30</lastmod></url><url><loc>https://rushidarunte.com/posts/homelab-basics/</loc><lastmod>2024-01-01T00:00:00+05:30</lastmod></url><url><loc>https://rushidarunte.com/_about/</loc></url><url><loc>https://rushidarunte.com/categories/</loc></url><url><loc>https://rushidarunte.com/tags/</loc></url></urlset>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2026-08-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/simba/</loc>
+    <lastmod>2026-08-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/now/</loc>
+    <lastmod>2026-07-16T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/grafana-victoria-stack/</loc>
+    <lastmod>2026-03-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/</loc>
+    <lastmod>2026-03-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/argocd-pr-deployments/</loc>
+    <lastmod>2025-10-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/_contact/</loc>
+    <lastmod>2025-06-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/homelab-overview/</loc>
+    <lastmod>2024-01-27T00:00:00+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/homelab-basics/</loc>
+    <lastmod>2024-01-01T00:00:00+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/_about/</loc>
+  </url><url>
+    <loc>http://localhost:1313/categories/</loc>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+  </url>
+</urlset>

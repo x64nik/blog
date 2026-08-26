@@ -1,0 +1,21 @@
+{{ $page := .page }}
+{{ with $page }}
+  {{ $paras := split (trim .RawContent "\n") "\n\n" }}
+  {{ $glimpse := "" }}
+  {{ range $paras }}
+    {{ $p := trim . " \n\t" }}
+    {{ if and (eq $glimpse "") (ne $p "") (not (strings.HasPrefix $p "<")) }}
+      {{ $glimpse = $p }}
+    {{ end }}
+  {{ end }}
+  {{ $glimpse = $glimpse | markdownify | plainify }}
+  <div class="section">
+    <a href="{{ .RelPermalink }}" class="preview-link">
+      <span class="preview-label">
+        {{ if $.dot }}<span class="preview-dot"></span>{{ end }}
+        {{ $.label }}
+      </span>
+      <div class="preview-text clamp-{{ $.clamp }}">{{ $glimpse }}</div>
+    </a>
+  </div>
+{{ end }}
